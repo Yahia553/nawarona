@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nawarona",
+  "main": "src/index.ts",
+  // لازم ميكونش أحدث من اللي workerd بتاع التستات بيدعمه (@cloudflare/vitest-plugin)
+  "compatibility_date": "2026-08-01",
+  "observability": { "enabled": true },
+
+  // الواجهة كلها static. الطلبات اللي مالهاش ملف (/ahmd-sara، /api/…، /admin) بتروح للـ Worker
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "none"
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "zaffa",
+      // بعد `npx wrangler d1 create zaffa` حط الـ id اللي هيطلعلك هنا
+      "database_id": "ac65e932-b9f5-4180-98e6-d405bb26f6e8",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "zaffa-media" }
+  ],
+
+  "vars": {
+    "INSTAPAY": "01552621135",
+    "VFCASH": "",
+    "WHATSAPP": "201552621135",
+    "PUBLIC_DOMAIN": "nawarona.yahiasaid553.workers.dev"
+  }
+  // Secrets (npx wrangler secret put …): ADMIN_PASSWORD, SESSION_SECRET, KEY_PEPPER
+}

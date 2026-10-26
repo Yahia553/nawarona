@@ -1,0 +1,70 @@
+/* متولّد من scripts/make-small-images.py — ما تعدّلوش بإيدكم */
+#phone-hero .iv-royal .fg{background:url(../img/sm/royal-bg.webp) center/100% 100% no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 15%,transparent 23%,transparent 88%,#000 95%),linear-gradient(90deg,#000 0%,#000 8.5%,transparent 10.5%,transparent 89.5%,#000 91.5%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 15%,transparent 23%,transparent 88%,#000 95%),linear-gradient(90deg,#000 0%,#000 8.5%,transparent 10.5%,transparent 89.5%,#000 91.5%)}
+#phone-hero .iv-katb .fg{background:url(../img/sm/katb-bg.webp) center/100% 100% no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 8.5%,transparent 12.5%,transparent 88%,#000 92%),linear-gradient(90deg,#000 0%,#000 6%,transparent 8.5%,transparent 91.5%,#000 94%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 8.5%,transparent 12.5%,transparent 88%,#000 92%),linear-gradient(90deg,#000 0%,#000 6%,transparent 8.5%,transparent 91.5%,#000 94%)}
+#phone-hero .iv-rose .fg{background:url(../img/sm/rose-bg.webp) center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 13%,transparent 27%,transparent 69%,#000 83%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 13%,transparent 27%,transparent 69%,#000 83%)}
+#phone-hero .iv-night .fg{background:url(../img/sm/night-bg.webp) center/cover no-repeat;opacity:0;transition:opacity 2.4s ease .5s;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 11%,transparent 70%,#000 82%);
+  mask-image:linear-gradient(180deg,#000 0%,transparent 11%,transparent 70%,#000 82%)}
+#phone-hero .iv-white .fg{background:url(../img/sm/white-bg.webp) center/cover no-repeat;
+  -webkit-mask-image:radial-gradient(85% 34% at 100% 0%,#000 58%,transparent 100%);
+  mask-image:radial-gradient(85% 34% at 100% 0%,#000 58%,transparent 100%)}
+#phone-hero /* ---------- HENNA : velvet curtain ---------- */
+.iv-henna{--c-bg:url(../img/sm/henna-bg.webp) center/100% 100% no-repeat,#5A0E14;
+  --c-ink:#F8EBD0;--c-acc:#E8BF6C;--c-btn-ink:#4A0D12;--f-names:"Aref Ruqaa","Amiri",serif;
+  --foil:linear-gradient(100deg,#B8862F 0%,#FFF0BE 18%,#D9A848 36%,#FFF6D2 54%,#C4913A 72%,#F6D894 86%,#B8862F 100%)}
+#phone-hero .op-henna{background:url(../img/sm/henna-tray.webp) center/cover no-repeat,#2A0608}
+#phone-hero .cp .pic{position:absolute;top:0;bottom:0;width:200%;background:url(../img/sm/henna-curtain.webp) center/cover no-repeat}
+#phone-hero /* ---------- RING : velvet box ---------- */
+.iv-ring{--c-bg:url(../img/sm/ring-bg.webp) center/cover no-repeat,#F8EADF;
+  --c-ink:#5A3A2C;--c-acc:#B07A4F;--c-btn-ink:#fff;--f-names:"Amiri",serif;
+  --foil:linear-gradient(100deg,#7E4E33 0%,#C98F66 22%,#8E5A3C 42%,#DDAA82 60%,#7E4E33 80%,#B57A52 100%)}
+#phone-hero .op-ring .rc{background-image:url(../img/sm/ring-closed.webp)}
+#phone-hero .op-ring .ro{background-image:url(../img/sm/ring-open.webp);opacity:0}
+#phone-hero /* ---------- GARDEN : iron gate ---------- */
+.iv-garden{--c-bg:url(../img/sm/garden-bg.webp) center/cover no-repeat,#FBF7EE;
+  --c-ink:#2E3B2B;--c-acc:#6F855A;--c-btn-ink:#fff;--f-names:"Amiri",serif;
+  --foil:linear-gradient(100deg,#2F4A2C 0%,#6F855A 24%,#3A5434 44%,#A8935A 58%,#2F4A2C 78%,#5C7448 100%)}
+#phone-hero .op-garden{background:url(../img/sm/garden-aisle.webp) center/cover no-repeat,#3A2A12}
+#phone-hero .op-garden .door .pic{background-image:url(../img/sm/garden-gate.webp)}
+#phone-hero /* foreground edges for the new templates */
+.iv-henna .fg{background:url(../img/sm/henna-bg.webp) center/100% 100% no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 9%,transparent 14%,transparent 88%,#000 93%),linear-gradient(90deg,#000 0%,#000 10%,transparent 14%,transparent 86%,#000 90%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 9%,transparent 14%,transparent 88%,#000 93%),linear-gradient(90deg,#000 0%,#000 10%,transparent 14%,transparent 86%,#000 90%)}
+#phone-hero .iv-ring .fg{background:url(../img/sm/ring-bg.webp) center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 12%,transparent 26%,transparent 70%,#000 84%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 12%,transparent 26%,transparent 70%,#000 84%)}
+#phone-hero .iv-garden .fg{background:url(../img/sm/garden-bg.webp) center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 15%,transparent 28%,transparent 68%,#000 80%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 15%,transparent 28%,transparent 68%,#000 80%)}
+#phone-hero /* ---------- ROYAL : palace doors ---------- */
+.iv-royal{--c-bg:url(../img/sm/royal-bg.webp) center/100% 100% no-repeat,#061612;
+  --c-ink:#F3E8CF;--c-acc:#D9B56B;--c-btn-ink:#0A2C24;--f-names:"Aref Ruqaa","Amiri",serif;
+  --foil:linear-gradient(100deg,#A47A2B 0%,#F6E2A8 18%,#C9973F 36%,#FFF3C8 54%,#B48A35 72%,#F1D58E 86%,#A47A2B 100%)}
+#phone-hero .op-royal{background:url(../img/sm/royal-hall.webp) center/cover no-repeat,#050B09}
+#phone-hero .door .pic{background-image:url(../img/sm/royal-doors.webp)}
+#phone-hero /* ---------- ROSE : envelope + petals ---------- */
+.iv-rose{--c-bg:url(../img/sm/rose-bg.webp) center/cover no-repeat,#FFF8F6;
+  --c-ink:#4A1A28;--c-acc:#C2546D;--c-btn-ink:#fff;--f-names:"Aref Ruqaa","Amiri",serif;
+  --foil:linear-gradient(100deg,#7A2840 0%,#B4485F 22%,#7A2840 44%,#C9677E 62%,#7A2840 82%,#9E3A52 100%)}
+#phone-hero .op-rose{background:url(../img/sm/rose-flatlay.webp) center/cover no-repeat,#F6DCDD;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px}
+#phone-hero /* ---------- NIGHT : lanterns ---------- */
+.iv-night{--c-bg:url(../img/sm/night-open.webp) center/cover no-repeat,#070D22;
+  --c-ink:#F3EEDD;--c-acc:#EBC66C;--c-btn-ink:#14204A;--f-names:"Rakkas","Aref Ruqaa",serif;
+  --foil:linear-gradient(100deg,#C9973F 0%,#FFF1C1 22%,#E9C46A 44%,#FFE7A6 62%,#C9973F 80%,#F7DB92 100%)}
+#phone-hero .iv .bgl{position:absolute;inset:0;z-index:0;background:radial-gradient(95% 52% at 50% 46%,rgba(5,10,30,.9),rgba(5,10,30,.62) 62%,rgba(5,10,30,.2)),url(../img/sm/night-bg.webp) center/cover no-repeat,#070D22;opacity:0;transition:opacity 2.4s ease .5s}
+#phone-hero /* ---------- KATB : mashrabiya ---------- */
+.iv-katb{--c-bg:url(../img/sm/katb-bg.webp) center/100% 100% no-repeat,#F6F0E2;
+  --c-ink:#1F3A30;--c-acc:#A0782E;--c-btn-ink:#FFF8E8;--f-names:"Amiri",serif;
+  --foil:linear-gradient(100deg,#1F3A30 0%,#2F5B45 28%,#A0782E 46%,#D7B66C 54%,#2F5B45 72%,#1F3A30 100%)}
+#phone-hero .op-katb{background:url(../img/sm/katb-light.webp) center/cover no-repeat,#E1AE5C}
+#phone-hero .msh .pic{background-image:url(../img/sm/katb-mashrabiya.webp)}
+#phone-hero /* ---------- WHITE : black curtain + gold line ---------- */
+.iv-white{--c-bg:url(../img/sm/white-bg.webp) center/cover no-repeat,#FFFFFF;--c-ink:#111111;--c-acc:#A8843A;--c-btn-ink:#fff;--f-names:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;
+  --foil:linear-gradient(100deg,#111 0%,#111 38%,#9C7A3A 48%,#E9D3A0 52%,#9C7A3A 56%,#111 66%,#111 100%)}
+#phone-hero .op-white .half .pic{position:absolute;left:0;right:0;height:198%;background:url(../img/sm/white-open.webp) center/cover no-repeat}

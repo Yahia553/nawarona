@@ -1,0 +1,17 @@
+# هيدرز الملفات الـ static (الـ Worker بيحط نفسها على الصفحات اللي بيرسمها: src/lib/html.ts)
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+
+/index.html
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+
+/img/*
+  Cache-Control: public, max-age=2592000
+
+# بيتأكد من النسخة كل مرة (304 لو مفيش تغيير) عشان أي تعديل يوصل للناس على طول بعد الـ deploy
+/assets/*
+  Cache-Control: public, no-cache
