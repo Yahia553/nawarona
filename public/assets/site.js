@@ -2,7 +2,7 @@
 (() => {
   const { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, toDate, parts, pad2, createInvite, slugify } = window.Nawarona;
   // ===== إعدادات المشروع: غيّر الأرقام دي قبل الإطلاق =====
-  const CONFIG = { price: 299, addon: 199, instapay: '01552621135', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.com' };
+  const CONFIG = { price: 299, addon: 199, instapay: '01014338347', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.com' };
 
   // تاريخ بعد n يوم (YYYY-MM-DD)
   const dayPlus = n => { const d = new Date(Date.now() + n * 864e5); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
@@ -15,6 +15,7 @@
     wording: 0, tpl: 'royal', addon: false, prog: true, program: null, notes: ['نرجو عدم اصطحاب الأطفال'], step: 1, reach: 1, started: false };
   let S = { ...DEFAULT };
   try { const saved = JSON.parse(localStorage.getItem('zaffa-draft') || 'null'); if (saved) S = { ...DEFAULT, ...saved }; } catch (e) {}
+  S.addon = false; // إضافة الصور اتشالت من الطلب، حتى لو مسودة قديمة كانت مختاراها
   if (!OCC[S.occ]) S.occ = 'hennawed';
   if (!TEMPLATES.some(t => t.id === S.tpl)) S.tpl = 'royal';
   if (!Array.isArray(S.program)) S.program = OCC[S.occ].prog.map(r => [...r]);
@@ -373,8 +374,6 @@
     const offer = $('#offer');
     offer.hidden = n >= 3;
     offer.innerHTML = n === 1 ? '<i>+</i><span>عندكم كتب كتاب أو خطوبة أو حنة؟ <b>الدعوة التانية بنص السعر</b></span>' : '<i>+</i><span>عندكم مناسبة تالتة؟ <b>التالتة ببلاش</b></span>';
-    $('#o-addon').checked = !!S.addon;
-    $('#o-addon-price').textContent = `+${ar(CONFIG.addon)} ج${n > 1 ? ' للدعوة' : ''}`;
     $('#breakdown').innerHTML = `<div><span>${n === 1 ? 'دعوة واحدة' : n === 2 ? 'دعوتين' : '٣ دعوات'}</span><span>${ar(BUNDLE[pkg()])} ج</span></div>
       ${n > 1 ? `<div><span>وفّرتوا</span><span>${ar(BUNDLE[1] * n - BUNDLE[pkg()])} ج</span></div>` : ''}
       ${S.addon ? `<div><span>صوركم${n > 1 ? ` (${ar(n)} × ${ar(CONFIG.addon)})` : ''}</span><span>${ar(CONFIG.addon * n)} ج</span></div>` : ''}
@@ -386,7 +385,6 @@
     if (rm) { removeDraft(+rm.dataset.rm); renderReview(); }
     if (add) { addDraft(); closeOrder(); goDesign(); }
   });
-  $('#o-addon').addEventListener('change', e => { S.addon = e.target.checked; save(); updateTotal(); renderReview(); });
   $('#to-details').addEventListener('click', () => {
     save();
     const i = S.items.findIndex(d => firstBadStep(d));

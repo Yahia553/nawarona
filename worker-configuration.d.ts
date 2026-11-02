@@ -5,7 +5,7 @@ interface __BaseEnv_Env {
 	MEDIA: R2Bucket;
 	DB: D1Database;
 	ASSETS: Fetcher;
-	INSTAPAY: "01552621135";
+	INSTAPAY: "01014338347";
 	VFCASH: "";
 	WHATSAPP: "201552621135";
 	PUBLIC_DOMAIN: "zaffa.app";
