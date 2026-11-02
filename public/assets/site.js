@@ -1,6 +1,6 @@
 // اللاندينج والمصمم. محرك الدعوة نفسه في invite.js
 (() => {
-  const { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, toDate, parts, pad2, Music, createInvite, slugify } = window.Zaffa;
+  const { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, toDate, parts, pad2, createInvite, slugify } = window.Nawarona;
   // ===== إعدادات المشروع: غيّر الأرقام دي قبل الإطلاق =====
   const CONFIG = { price: 299, addon: 199, instapay: '01552621135', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.yahiasaid553.workers.dev' };
 
@@ -79,7 +79,7 @@
 
   // ===== الهيرو: عرض تلقائي للقوالب =====
   let heroTpl = 'royal', heroCycle;
-  const hero = createInvite($('#phone-hero'), { p: 'h', getData: heroInvite, getTpl: () => heroTpl, music: false, replay: false, onRsvp: demoRsvp });
+  const hero = createInvite($('#phone-hero'), { p: 'h', getData: heroInvite, getTpl: () => heroTpl, replay: false, onRsvp: demoRsvp });
   function heroShow(id) {
     heroTpl = id; hero.reset();
     document.querySelectorAll('#hdots button').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === id));
@@ -98,7 +98,7 @@
   $('#phone-hero').addEventListener('pointerdown', () => clearInterval(heroCycle), { passive: true });
 
   // ===== المصمم =====
-  const main = createInvite($('#phone-main'), { p: 'm', getData: toInvite, music: true, replay: true, onRsvp: demoRsvp });
+  const main = createInvite($('#phone-main'), { p: 'm', getData: toInvite, replay: true, onRsvp: demoRsvp });
   const mobile = matchMedia('(max-width: 940px)');
   const OCC_IMG = { hennawed: 'henna-tray', katb: 'katb-mashrabiya', engage: 'ring-open', henna: 'henna-curtain', wedding: 'royal-hall' };
   const TPL_DESC = { royal: 'باب بيتفتح على قاعة نجف', rose: 'ظرف بختم شمع والورد طاير', katb: 'مشربية بتتفتح على حوش', night: 'فانوس بيطير فوق النيل', white: 'رخام أسود بيتقسم بخط دهب', henna: 'ستارة قطيفة على صينية الحنة', ring: 'علبة قطيفة ويلمع الخاتم', garden: 'بوابة ورد على ممر أنوار' };
@@ -331,12 +331,12 @@
   function openGuest(tpl) {
     tryTpl = typeof tpl === 'string' ? tpl : null;
     guest.hidden = false; document.body.style.overflow = 'hidden';
-    gInst = createInvite($('#gscreen'), { p: 'g', getData: toInvite, getTpl: () => tryTpl || S.tpl, music: true, replay: true, onRsvp: demoRsvp });
+    gInst = createInvite($('#gscreen'), { p: 'g', getData: toInvite, getTpl: () => tryTpl || S.tpl, replay: true, onRsvp: demoRsvp });
     $('#gbar').hidden = !tryTpl;
     if (tryTpl) { const id = tryTpl; $('#gbar-pick').textContent = `اختاروا ${tplName(id)}`; loadTpl(id).then(() => setTimeout(() => { if (gInst && tryTpl === id) gInst.open(false); }, REDUCE ? 0 : 350)); }
     else $('#gscreen .iv-open')?.focus();
   }
-  function closeGuest() { gInst && gInst.destroy(); gInst = null; tryTpl = null; $('#gbar').hidden = true; guest.hidden = true; document.body.style.overflow = ''; Music.stop(); }
+  function closeGuest() { gInst && gInst.destroy(); gInst = null; tryTpl = null; $('#gbar').hidden = true; guest.hidden = true; document.body.style.overflow = ''; }
   $('#gclose').addEventListener('click', closeGuest);
   $('#gbar-back').addEventListener('click', closeGuest);
   $('#gbar-pick').addEventListener('click', () => { const id = tryTpl; closeGuest(); selectTemplate(id); toast(`اخترتوا ${tplName(id)}`); });
@@ -359,7 +359,7 @@
   function orderText() {
     const many = S.items.length > 1;
     const inv = S.items.flatMap((d, i) => many ? [`— الدعوة ${i + 1} —`, ...draftLines(d)] : draftLines(d));
-    return ['طلب دعوة جديدة من نورونا', ...inv, `الباقة: ${PKG_NAME[pkg()]}`, `الإضافات: ${S.addon ? 'صور وأغنية' : 'مفيش'}`, `الإجمالي: ${total()} جنيه`].join('\n');
+    return ['طلب دعوة جديدة من نورونا', ...inv, `الباقة: ${PKG_NAME[pkg()]}`, `الإضافات: ${S.addon ? 'صور' : 'مفيش'}`, `الإجمالي: ${total()} جنيه`].join('\n');
   }
 
   // --- الخطوة ١: راجعوا ---
@@ -377,7 +377,7 @@
     $('#o-addon-price').textContent = `+${ar(CONFIG.addon)} ج${n > 1 ? ' للدعوة' : ''}`;
     $('#breakdown').innerHTML = `<div><span>${n === 1 ? 'دعوة واحدة' : n === 2 ? 'دعوتين' : '٣ دعوات'}</span><span>${ar(BUNDLE[pkg()])} ج</span></div>
       ${n > 1 ? `<div><span>وفّرتوا</span><span>${ar(BUNDLE[1] * n - BUNDLE[pkg()])} ج</span></div>` : ''}
-      ${S.addon ? `<div><span>صوركم وأغنيتكم${n > 1 ? ` (${ar(n)} × ${ar(CONFIG.addon)})` : ''}</span><span>${ar(CONFIG.addon * n)} ج</span></div>` : ''}
+      ${S.addon ? `<div><span>صوركم${n > 1 ? ` (${ar(n)} × ${ar(CONFIG.addon)})` : ''}</span><span>${ar(CONFIG.addon * n)} ج</span></div>` : ''}
       <div class="tot"><span>الإجمالي</span><span>${ar(total())} ج</span></div>`;
   }
   $('#ord-review').addEventListener('click', e => {
@@ -445,7 +445,7 @@
 
   // --- الخطوة ٣: الدفع ---
   function waText(j) {
-    return [`طلب نورونا رقم ${j.orderCode}`, `الباقة: ${PKG_NAME[pkg()]}`, `الإضافات: ${S.addon ? 'صور وأغنية' : 'مفيش'}`, `الإجمالي: ${j.total} جنيه`, '',
+    return [`طلب نورونا رقم ${j.orderCode}`, `الباقة: ${PKG_NAME[pkg()]}`, `الإضافات: ${S.addon ? 'صور' : 'مفيش'}`, `الإجمالي: ${j.total} جنيه`, '',
       ...j.invitations.flatMap((x, i) => [labelOf(S.items[i] || S), `المعاينة: ${x.previewUrl}`]), '', 'ودي صورة إيصال التحويل:'].join('\n');
   }
   function showDone(j) {

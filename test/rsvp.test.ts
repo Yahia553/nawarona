@@ -78,7 +78,7 @@ describe('صفحة الضيف /:slug', () => {
     expect(r.text).toContain('الدعوة لسه بتتجهّز');
     expect(r.text).not.toContain('invite-data');
     expect(r.text).toContain('<meta property="og:title" content="دعوة فرح أحمد وسارة">');
-    expect(r.text).toMatch(/og:image" content="https:\/\/zaffa\.test\/img\/og\/royal\.jpg"/);
+    expect(r.text).toMatch(/og:image" content="https:\/\/nawarona.test\/img\/og\/royal\.jpg"/);
     expect(r.headers.get('content-security-policy')).toContain("script-src 'self'");
     // توكن المعاينة الصح بيفتحها بشريط «معاينة» ومن غير ردود
     const p = await call(new URL(o.invitations[0].previewUrl).pathname + new URL(o.invitations[0].previewUrl).search);

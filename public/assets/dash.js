@@ -1,6 +1,6 @@
 // لوحة المعازيم بتاعة العرسان: الأرقام، الردود، باب الردود، وتعديل بيانات الدعوة.
 (() => {
-  const { esc, ar, OCC, TEMPLATES, NOTE_CHIPS } = window.Zaffa;
+  const { esc, ar, OCC, TEMPLATES, NOTE_CHIPS } = window.Nawarona;
   const $ = (s, r = document) => r.querySelector(s);
   const app = $('#app');
   const slug = decodeURIComponent(location.pathname.split('/')[2] || '');
@@ -36,7 +36,7 @@
   }
   function denied(msg) {
     app.innerHTML = `<main class="wrap dmain"><div class="card" style="text-align:center;align-items:center;margin-top:12vh">
-      <a class="logo" href="/"><i></i><span class="foilp">نورونا</span></a>
+      <a class="logo" href="/"><img src="/img/logo-mark.webp" alt="" width="57" height="64"><img class="word" src="/img/logo-word.webp" alt="نورونا" width="266" height="96"></a>
       <h2>مش قادرين نفتح اللوحة</h2><p class="muted">${esc(msg || 'اللينك ده مش صحيح، اتأكدوا إنه نفس اللينك اللي وصلكم وقت الطلب.')}</p></div></main>`;
   }
 
@@ -46,7 +46,7 @@
   function render() {
     const i = D.invitation, o = OCC[i.occasion] || OCC.hennawed, live = i.status === 'active', ended = i.status === 'expired' || i.status === 'closed';
     const waText = `${o.tag}: ${i.groom} و${i.bride}\nاتفضلوا دعوتنا 💛\n${i.shareUrl}`;
-    app.innerHTML = `<header class="dbar"><div class="wrap"><a class="logo" href="/" style="font-size:24px"><i></i><span class="foilp">نورونا</span></a><span class="t">لوحة المعازيم</span></div></header>
+    app.innerHTML = `<header class="dbar"><div class="wrap"><a class="logo" href="/" style="font-size:24px"><img src="/img/logo-mark.webp" alt="" width="57" height="64"><img class="word" src="/img/logo-word.webp" alt="نورونا" width="266" height="96"></a><span class="t">لوحة المعازيم</span></div></header>
     <main class="wrap dmain">
       <section class="hero-d">
         <p class="eyebrow">${esc(o.name)}</p>
@@ -122,13 +122,13 @@
       : `<li class="empty">${D.rsvps.length ? 'مفيش ردود بالبحث ده' : 'لسه محدش ردّ. ابعتوا اللينك وهتلاقوا الردود هنا أول بأول.'}</li>`;
   }
 
-  // ===== صوركم وأغنيتكم =====
+  // ===== صوركم =====
   const MB = 1024 * 1024;
   function mediaHTML(i) {
-    if (!i.media_allowed) return `<section class="card"><h2>صوركم وأغنيتكم</h2><p class="notebox">${i.status === 'closed' ? 'الدعوة دي مقفولة.' : 'هتقدروا ترفعوا الصور والأغنية أول ما نأكد الدفع.'}</p></section>`;
-    const m = i.media || { cover: null, photos: [], song: null }, photos = m.photos || [];
+    if (!i.media_allowed) return `<section class="card"><h2>صوركم</h2><p class="notebox">${i.status === 'closed' ? 'الدعوة دي مقفولة.' : 'هتقدروا ترفعوا الصور أول ما نأكد الدفع.'}</p></section>`;
+    const m = i.media || { cover: null, photos: [] }, photos = m.photos || [];
     const pick = (kind, text, accept, multi) => `<label class="btn btn-ghost sm file">${text}<input class="vh" type="file" accept="${accept}" ${multi ? 'multiple' : ''} data-up="${kind}"></label>`;
-    return `<section class="card" id="media"><h2>صوركم وأغنيتكم</h2>
+    return `<section class="card" id="media"><h2>صوركم</h2>
       <p class="muted small">بيظهروا في الدعوة على طول. الصور بتتصغّر لوحدها قبل الرفع.</p>
       <div class="mblock"><span class="lbl">صورة الغلاف (فوق أساميكم)</span>
         <div class="cov">${m.cover ? `<img src="${esc(m.cover)}" alt="صورة الغلاف">` : '<span class="muted small">مفيش صورة</span>'}</div>
@@ -137,10 +137,6 @@
       <div class="mblock"><span class="lbl">صور من حكايتكم (${ar(photos.length)} من ٦)</span>
         ${photos.length ? `<div class="thumbs">${photos.map((u, n) => `<div class="th"><img src="${esc(u)}" alt=""><button type="button" data-mrm="photo" data-key="${esc(u.replace('/media/', ''))}" aria-label="احذف الصورة ${n + 1}">×</button></div>`).join('')}</div>` : ''}
         ${photos.length < 6 ? `<div class="acts">${pick('photo', 'أضيفوا صور', 'image/*', true)}</div>` : ''}
-      </div>
-      <div class="mblock"><span class="lbl">أغنيتكم (mp3 أو m4a لحد ١٠ ميجا)</span>
-        ${m.song ? `<audio controls preload="none" src="${esc(m.song)}"></audio>` : '<p class="muted small">من غير أغنية، الدعوة بتشتغل بموسيقاها.</p>'}
-        <div class="acts">${pick('song', m.song ? 'غيّروا الأغنية' : 'ارفعوا أغنية', '.mp3,.m4a,audio/mpeg,audio/mp4,audio/x-m4a')}${m.song ? '<button type="button" class="btn btn-ghost sm" data-mrm="song">احذفوها</button>' : ''}</div>
       </div>
       <p class="muted small" id="mstatus" role="status" hidden></p>
     </section>`;
@@ -169,7 +165,7 @@
       const x = new XMLHttpRequest();
       x.open('POST', `/api/d/${encodeURIComponent(slug)}/media?kind=${kind}`);
       x.setRequestHeader('Authorization', 'Bearer ' + key);
-      x.setRequestHeader('Content-Type', blob.type || (kind === 'song' ? 'audio/mpeg' : 'image/jpeg'));
+      x.setRequestHeader('Content-Type', blob.type || 'image/jpeg');
       x.upload.onprogress = e => { if (e.lengthComputable) onProgress(e.loaded / e.total); };
       x.onload = () => {
         let j = {}; try { j = JSON.parse(x.responseText); } catch (e) {}
@@ -189,21 +185,18 @@
     try {
       for (let n = 0; n < files.length; n++) {
         const f = files[n], of = files.length > 1 ? ` ${ar(n + 1)} من ${ar(files.length)}` : '';
-        let blob = f;
-        if (kind === 'song') {
-          if (f.size > 10 * MB) throw new Error('الأغنية أكبر من ١٠ ميجا');
-          if (!/\.(mp3|m4a)$/i.test(f.name) && !/^audio\/(mpeg|mp3|mp4|x-m4a)$/.test(f.type)) throw new Error('الأغنية لازم تكون mp3 أو m4a');
-        } else { say('بنجهّز الصورة' + of + '…'); blob = await shrink(f); }
+        say('بنجهّز الصورة' + of + '…');
+        const blob = await shrink(f);
         D = await upload(kind, blob, pct => say(`بنرفع${of}… ${ar(Math.round(pct * 100))}٪`));
       }
     } catch (e) { failed = e; }
     if (failed && failed.message === 'auth') return;
     render();
-    if (failed) say(failed.message); else toast(kind === 'song' ? 'الأغنية اترفعت' : files.length > 1 ? 'الصور اترفعت' : 'اترفعت');
+    if (failed) say(failed.message); else toast(files.length > 1 ? 'الصور اترفعت' : 'اترفعت');
     $('#media')?.scrollIntoView({ block: 'start' });
   }
   async function removeMedia(btn) {
-    if (!confirm(btn.dataset.mrm === 'song' ? 'تحذفوا الأغنية؟' : 'تحذفوا الصورة؟')) return;
+    if (!confirm('تحذفوا الصورة؟')) return;
     const q = new URLSearchParams({ kind: btn.dataset.mrm });
     if (btn.dataset.key) q.set('key', btn.dataset.key);
     try { D = await api('DELETE', null, '/media?' + q); render(); toast('اتحذفت'); $('#media')?.scrollIntoView({ block: 'start' }); }

@@ -16,11 +16,11 @@ const m4a = () => { const b = bytes([0, 0, 0, 0x20]); b.set([...'ftypM4A '].map(
 const png = () => bytes([0x89, 0x50, 0x4e, 0x47]);
 
 describe('sniff: النوع من البايتات', () => {
-  it('بيعرف webp و jpg و mp3 و m4a وبيرفض الباقي', () => {
+  it('بيعرف webp و jpg بس، وبيرفض الصوت والباقي', () => {
     expect(sniff(webp())?.mime).toBe('image/webp');
     expect(sniff(jpg())?.mime).toBe('image/jpeg');
-    expect(sniff(mp3())?.mime).toBe('audio/mpeg');
-    expect(sniff(m4a())?.mime).toBe('audio/mp4');
+    expect(sniff(mp3())).toBeNull();
+    expect(sniff(m4a())).toBeNull();
     expect(sniff(png())).toBeNull();
   });
 });
@@ -31,7 +31,7 @@ const up = (kind: string, body: Uint8Array, type = 'application/octet-stream') =
 
 beforeAll(async () => { o = await createOrder({ addon: true }); });
 
-describe('رفع صوركم وأغنيتكم', () => {
+describe('رفع صوركم', () => {
   it('مقفول قبل الدفع، ومقفول للطلبات اللي من غير الإضافة', async () => {
     expect((await up('cover', webp())).status).toBe(403);
     const plain = await createOrder();
@@ -59,15 +59,15 @@ describe('رفع صوركم وأغنيتكم', () => {
   it('النوع من البايتات مش من الـ Content-Type، والحجم ليه حد', async () => {
     expect((await up('cover', png(), 'image/png')).status).toBe(400);
     expect((await up('cover', mp3(), 'image/jpeg')).status).toBe(400);
-    expect((await up('song', jpg(), 'audio/mpeg')).status).toBe(400);
+    expect((await up('song', mp3(), 'audio/mpeg')).status).toBe(400);
     expect((await up('photo', bytes([0xff, 0xd8, 0xff], 2 * 1024 * 1024 + 1), 'image/jpeg')).status).toBe(413);
     expect((await up('video', webp())).status).toBe(400);
   });
 
-  it('الأغنية بتتعرض بـ Range (سفاري محتاجه)', async () => {
-    const r = await up('song', mp3(), 'audio/mpeg');
-    const song = r.json.invitation.media.song as string;
-    const part = await call(song, { headers: { range: 'bytes=0-99' } });
+  it('الملفات بتتعرض بـ Range', async () => {
+    const r = await up('cover', jpg(), 'image/jpeg');
+    const cover = r.json.invitation.media.cover as string;
+    const part = await call(cover, { headers: { range: 'bytes=0-99' } });
     expect(part.status).toBe(206);
     expect(part.bytes.length).toBe(100);
     expect(part.headers.get('content-range')).toBe('bytes 0-99/2048');
@@ -86,10 +86,10 @@ describe('رفع صوركم وأغنيتكم', () => {
     expect(await env.MEDIA.head(key)).toBeNull();
   });
 
-  it('صفحة الضيف فيها لينكات الصور والأغنية', async () => {
+  it('صفحة الضيف فيها لينكات الصور ومفيهاش أغنية', async () => {
     const page = await call('/' + o.invitations[0].slug);
     expect(page.text).toMatch(/"cover":"\/media\/[0-9A-Z]{26}\/[0-9A-Z]{26}\.jpg"/);
-    expect(page.text).toMatch(/"song":"\/media\/[0-9A-Z]{26}\/[0-9A-Z]{26}\.mp3"/);
+    expect(page.text).not.toContain('"song"');
   });
 
   it('مسارات media غلط: ٤٠٤', async () => {

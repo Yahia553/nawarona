@@ -1,6 +1,6 @@
 // محرك الدعوة: بيرسم الدعوة من object بيانات عادي، فيشتغل في اللاندينج والمصمم وصفحة الضيف.
 // شكل البيانات: { occasion, template, wording, groom, bride, events: [{ label, date, time, hall, area, maps }], show_program, program: [[time, title]], notes: [] }
-window.Zaffa = (() => {
+window.Nawarona = (() => {
   const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (s, r = document) => r.querySelector(s);
   const ar = n => Number(n).toLocaleString('ar-EG');
@@ -79,118 +79,6 @@ window.Zaffa = (() => {
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${icsStamp(d)}/${icsStamp(end)}&ctz=Africa/Cairo&location=${encodeURIComponent(`${e.hall} ${e.area}`)}`;
   }
   const mapUrlOf = e => (e.maps && /^https?:\/\//i.test(e.maps)) ? e.maps : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${e.hall} ${e.area}`)}`;
-
-  // ===== موسيقى: هارب وبيانو وخلفية هادية بصدى (مؤلَّفة بالكود) =====
-  const Music = (() => {
-    let ac, out, bus, timer, on = false, next = 0, step = 0, bar = 0;
-    const F = m => 440 * Math.pow(2, (m - 69) / 12);
-    const PROG = [
-      { b: 38, pad: [62, 66, 69, 73], arp: [62, 66, 69, 73, 76, 73, 69, 66], top: 78 },
-      { b: 35, pad: [59, 62, 66, 69], arp: [59, 62, 66, 69, 73, 69, 66, 62], top: 74 },
-      { b: 31, pad: [55, 59, 62, 66], arp: [55, 62, 66, 69, 71, 69, 66, 62], top: 71 },
-      { b: 33, pad: [57, 62, 64, 69], arp: [57, 64, 69, 71, 74, 71, 69, 64], top: 76 }
-    ];
-    const EIGHTH = .4;
-    function ir(sec) {
-      const len = Math.floor(ac.sampleRate * sec), b = ac.createBuffer(2, len, ac.sampleRate);
-      for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.8); }
-      return b;
-    }
-    function setup() {
-      ac = new (window.AudioContext || window.webkitAudioContext)();
-      out = ac.createGain(); out.gain.value = 0;
-      const comp = ac.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 3;
-      const tone = ac.createBiquadFilter(); tone.type = 'lowpass'; tone.frequency.value = 4200;
-      bus = ac.createGain();
-      const dry = ac.createGain(); dry.gain.value = .7;
-      const conv = ac.createConvolver(); conv.buffer = ir(3.6);
-      const wet = ac.createGain(); wet.gain.value = .6;
-      bus.connect(dry); bus.connect(conv); conv.connect(wet);
-      dry.connect(tone); wet.connect(tone); tone.connect(comp); comp.connect(out); out.connect(ac.destination);
-    }
-    function pluck(m, t, v) {
-      const g = ac.createGain(), lp = ac.createBiquadFilter();
-      lp.type = 'lowpass'; lp.frequency.setValueAtTime(3200, t); lp.frequency.exponentialRampToValueAtTime(900, t + 1.8);
-      [[1, 1], [2, .38], [3, .16], [4, .07], [6, .025]].forEach(([h, a]) => {
-        const o = ac.createOscillator(), og = ac.createGain();
-        o.type = 'sine'; o.frequency.value = F(m) * h * (1 + (Math.random() - .5) * .0015); og.gain.value = a;
-        o.connect(og).connect(lp); o.start(t); o.stop(t + 4);
-      });
-      lp.connect(g); g.connect(bus);
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .008);
-      g.gain.exponentialRampToValueAtTime(v * .3, t + .35); g.gain.exponentialRampToValueAtTime(.0001, t + 3.6);
-    }
-    function pad(notes, t, dur) {
-      notes.forEach(m => {
-        const lp = ac.createBiquadFilter(), g = ac.createGain();
-        lp.type = 'lowpass'; lp.frequency.value = 950; lp.Q.value = .3;
-        [-7, 7].forEach(dt => { const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = F(m); o.detune.value = dt; o.connect(lp); o.start(t); o.stop(t + dur + 2.5); });
-        lp.connect(g); g.connect(bus);
-        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.016, t + 1.4); g.gain.setValueAtTime(.016, t + dur); g.gain.linearRampToValueAtTime(0, t + dur + 2.2);
-      });
-    }
-    function bass(m, t) {
-      const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = F(m);
-      o.connect(g); g.connect(bus); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.13, t + .08); g.gain.exponentialRampToValueAtTime(.0001, t + 3.4);
-      o.start(t); o.stop(t + 3.5);
-    }
-    function tick() {
-      while (next < ac.currentTime + .5) {
-        const ch = PROG[bar % PROG.length], i = step % 8, hum = (Math.random() - .5) * .018;
-        if (i === 0) { pad(ch.pad, next, EIGHTH * 8); bass(ch.b, next); if (bar % 2 === 1) pluck(ch.top, next + .02, .05); }
-        const skip = (i === 7 && bar % 2 === 0) || (i === 5 && bar % 4 === 3);
-        if (!skip) pluck(ch.arp[i], next + hum, (i === 0 ? .11 : .075) + Math.random() * .02);
-        step++; if (step % 8 === 0) bar++;
-        next += EIGHTH;
-      }
-    }
-    function sync() { document.querySelectorAll('.iv-sound').forEach(b => b.classList.toggle('on', on)); }
-    return {
-      on: () => on,
-      start() {
-        try {
-          if (!ac) setup();
-          ac.resume();
-          if (!on) {
-            on = true; step = 0; bar = 0; next = ac.currentTime + .1;
-            out.gain.cancelScheduledValues(ac.currentTime); out.gain.setValueAtTime(out.gain.value, ac.currentTime); out.gain.linearRampToValueAtTime(.85, ac.currentTime + 2.5);
-            clearInterval(timer); timer = setInterval(tick, 120); tick();
-          }
-        } catch (e) { on = false; }
-        sync();
-      },
-      stop() {
-        on = false; clearInterval(timer);
-        if (ac) { out.gain.cancelScheduledValues(ac.currentTime); out.gain.setValueAtTime(out.gain.value, ac.currentTime); out.gain.linearRampToValueAtTime(0, ac.currentTime + .8); }
-        sync();
-      },
-      toggle() { on ? this.stop() : this.start(); }
-    };
-  })();
-
-
-  // ===== أغنية العرسان (إضافة الصور والأغنية): بتشتغل بعد ما الضيف يدوس، بدل الموسيقى المؤلَّفة =====
-  const Song = (() => {
-    let a = null, src = '', on = false, fade;
-    const sync = () => document.querySelectorAll('.iv-sound').forEach(b => b.classList.toggle('on', on));
-    return {
-      use(url) { if (url !== src) { this.stop(); src = url; a = null; } return this; },
-      on: () => on,
-      start() {
-        if (!src) return;
-        if (!a) { a = new Audio(src); a.loop = true; a.preload = 'auto'; }
-        on = true; sync();
-        try { a.volume = 0; } catch (e) {}
-        const pr = a.play();
-        if (pr && pr.catch) pr.catch(() => { on = false; sync(); });
-        clearInterval(fade);
-        fade = setInterval(() => { try { a.volume = Math.min(.9, a.volume + .06); } catch (e) {} if (!a || a.volume >= .9) clearInterval(fade); }, 120);
-      },
-      stop() { on = false; clearInterval(fade); if (a) a.pause(); sync(); },
-      toggle() { on ? this.stop() : this.start(); }
-    };
-  })();
-  const player = d => (d && d.media && d.media.song) ? Song.use(d.media.song) : Music;
 
   // ===== رسومات القوالب =====
   function doorPanel(p) {
@@ -460,7 +348,7 @@ window.Zaffa = (() => {
   }
 
   // ===== محرك الدعوة =====
-  // o: { p, getData, getTpl?, music, replay, onRsvp?, afterRender? }
+  // o: { p, getData, getTpl?, replay, onRsvp?, afterRender? }
   // getTpl اختياري: الهيرو بيعرض القوالب بالتوالي على نفس البيانات.
   // onRsvp(reply) بيرجع false (أو Promise بـ false) لو الرد ما اتبعتش.
   function createInvite(host, o) {
@@ -481,7 +369,7 @@ window.Zaffa = (() => {
       clearTimeout(st.timer);
       st.fx && st.fx.stop();
       const tpl = getTpl(), data = o.getData(); st.tpl = tpl; st.opening = false;
-      host.innerHTML = `<div class="iv iv-${tpl}${st.opened ? ' is-open' : ''}">${tpl === 'night' ? '<div class="bgl"></div>' : ''}<canvas class="fx-back"></canvas><div class="iv-scroll"><div class="iv-body">${bodyHTML(data, tpl, o.p)}</div></div><div class="fg"></div><canvas class="fx-front"></canvas>${st.opened ? '' : openingHTML(data, tpl, o.p)}<div class="iv-ctrl">${o.replay ? '<button type="button" class="ivb iv-replay" aria-label="شوف الافتتاحية تاني">↻</button>' : ''}<button type="button" class="ivb iv-sound${player(data).on() ? ' on' : ''}" aria-label="الموسيقى">♪</button></div></div>`;
+      host.innerHTML = `<div class="iv iv-${tpl}${st.opened ? ' is-open' : ''}">${tpl === 'night' ? '<div class="bgl"></div>' : ''}<canvas class="fx-back"></canvas><div class="iv-scroll"><div class="iv-body">${bodyHTML(data, tpl, o.p)}</div></div><div class="fg"></div><canvas class="fx-front"></canvas>${st.opened ? '' : openingHTML(data, tpl, o.p)}<div class="iv-ctrl">${o.replay ? '<button type="button" class="ivb iv-replay" aria-label="شوف الافتتاحية تاني">↻</button>' : ''}</div></div>`;
       st.el = host.firstElementChild;
       st.fx = makeFX(st.el, tpl);
       bindScroll(); observe();
@@ -493,18 +381,16 @@ window.Zaffa = (() => {
       }
       const rp = st.el.querySelector('.iv-replay');
       rp && rp.addEventListener('click', () => { st.opened = false; build(); });
-      st.el.querySelector('.iv-sound').addEventListener('click', () => player(o.getData()).toggle());
       bindRsvp(st.el); bindGallery(st.el);
       o.afterRender && o.afterRender(st.el);
     }
-    function open(gesture) {
+    function open() {
       if (st.opened || st.opening || !st.el) return;
       st.opening = true;
       const el = st.el, op = el.querySelector('.iv-open'), tpl = st.tpl;
       el.classList.add('opening');
       const STAGES = { rose: [[0, 'st1'], [320, 'st2'], [760, 'st3'], [880, 'st4'], [1950, 'st5']] }[tpl] || [];
       STAGES.forEach(([ms, c]) => { if (REDUCE) el.classList.add(c); else setTimeout(() => { if (st.el === el) el.classList.add(c); }, ms); });
-      if (gesture && o.music) player(o.getData()).start();
       const T = REDUCE ? 300 : DUR[tpl];
       setTimeout(() => { if (st.el === el) st.fx.burst(); }, REDUCE ? 0 : BURST[tpl]);
       st.timer = setTimeout(() => {
@@ -577,5 +463,5 @@ window.Zaffa = (() => {
 
   setInterval(() => { document.querySelectorAll('.cd[data-ts]').forEach(box => { const c = cdOf(+box.dataset.ts); box.querySelectorAll('[data-cd]').forEach(el => { el.textContent = ar(c[el.dataset.cd]); }); }); }, 30000);
 
-  return { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, occOf, wordOf, toDate, instant, fmtTime, parts, pad2, Music, createInvite, slugify };
+  return { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, occOf, wordOf, toDate, instant, fmtTime, parts, pad2, createInvite, slugify };
 })();

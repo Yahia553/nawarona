@@ -52,7 +52,7 @@ pages.get('/:slug', async c => {
   if ((status === 'pending' || status === 'draft') && !preview) {
     return html(page({
       title: og.title, head: og.head, css: ['/assets/page.css'], bodyClass: 'notice',
-      body: `<main class="note-card"><a class="logo" href="/"><i></i><span class="foilp">نورونا</span></a><h1 class="names foilp">${esc(coupleNames(row))}</h1><h2>الدعوة لسه بتتجهّز</h2><p>هتشتغل أول ما العرسان يفعّلوها. ارجعوا للينك ده كمان شوية.</p></main>`,
+      body: `<main class="note-card"><a class="logo" href="/"><img src="/img/logo-mark.webp" alt="" width="57" height="64"><img class="word" src="/img/logo-word.webp" alt="نورونا" width="266" height="96"></a><h1 class="names foilp">${esc(coupleNames(row))}</h1><h2>الدعوة لسه بتتجهّز</h2><p>هتشتغل أول ما العرسان يفعّلوها. ارجعوا للينك ده كمان شوية.</p></main>`,
     }));
   }
 

@@ -1,7 +1,7 @@
 // أدوات مشتركة للتستات: طلبات على الـ Worker، طلب جاهز، ودخول الأدمن
 import { exports } from 'cloudflare:workers';
 
-export const BASE = 'https://zaffa.test';
+export const BASE = 'https://nawarona.test';
 export const ORIGIN = { origin: BASE };
 
 export type Res = { status: number; json: any; text: string; headers: Headers; bytes: Uint8Array };

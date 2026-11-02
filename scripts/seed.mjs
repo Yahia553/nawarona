@@ -62,12 +62,12 @@ const sql = [
   }),
 ].join('\n');
 
-const dir = mkdtempSync(join(tmpdir(), 'zaffa-seed-')), file = join(dir, 'seed.sql');
+const dir = mkdtempSync(join(tmpdir(), 'nawarona-seed-')), file = join(dir, 'seed.sql');
 writeFileSync(file, sql);
 try {
   // wrangler نفسه من node_modules من غير shell، فبيشتغل زي بعضه على ويندوز وماك ولينكس
   execFileSync(process.execPath, ['node_modules/wrangler/bin/wrangler.js', 'd1', 'execute', 'zaffa', remote ? '--remote' : '--local', '--file', file, '-y'], { stdio: 'inherit' });
 } finally { rmSync(dir, { recursive: true, force: true }); }
 
-const base = remote ? `https://${/"PUBLIC_DOMAIN":\s*"([^"]+)"/.exec(readFileSync('wrangler.jsonc', 'utf8'))?.[1] || 'zaffa.app'}` : 'http://localhost:8787';
+const base = remote ? `https://${/"PUBLIC_DOMAIN":\s*"([^"]+)"/.exec(readFileSync('wrangler.jsonc', 'utf8'))?.[1] || 'nawarona.yahiasaid553.workers.dev'}` : 'http://localhost:8787';
 console.log(`\nالدعوة التجريبية جاهزة:\n  صفحة الضيف:   ${base}/${SLUG}\n  لوحة العرسان: ${base}/d/${SLUG}?k=${key}\n  (المفتاح ده بيظهر مرة واحدة بس)`);

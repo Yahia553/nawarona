@@ -1,4 +1,4 @@
-// صور وأغنية العرسان على R2: الرفع والحذف (للعرسان بالمفتاح) والعرض (للكل، بكاش طويل)
+// صور العرسان على R2: الرفع والحذف (للعرسان بالمفتاح) والعرض (للكل، بكاش طويل)
 import { Hono } from 'hono';
 import { ulid } from '../lib/crypto';
 import { MAX_PHOTOS, parseMedia, type InvitationRow, type Media } from '../db';
@@ -7,20 +7,15 @@ export const MB = 1024 * 1024;
 export const MEDIA_RULES = {
   cover: { kind: 'image', max: 2 * MB },
   photo: { kind: 'image', max: 2 * MB },
-  song: { kind: 'audio', max: 10 * MB },
 } as const;
 export type MediaKind = keyof typeof MEDIA_RULES;
 export const isMediaKind = (v: unknown): v is MediaKind => typeof v === 'string' && Object.hasOwn(MEDIA_RULES, v);
 
-const M4A_BRANDS = ['M4A ', 'M4B ', 'mp42', 'mp41', 'isom', 'iso2', 'dash'];
-
 /** نوع الملف من أول البايتات (مش من اللي المتصفح بيقوله) */
-export function sniff(b: Uint8Array): { kind: 'image' | 'audio'; mime: string; ext: string } | null {
+export function sniff(b: Uint8Array): { kind: 'image'; mime: string; ext: string } | null {
   const at = (i: number, s: string) => [...s].every((ch, k) => b[i + k] === ch.charCodeAt(0));
   if (at(0, 'RIFF') && at(8, 'WEBP')) return { kind: 'image', mime: 'image/webp', ext: 'webp' };
   if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return { kind: 'image', mime: 'image/jpeg', ext: 'jpg' };
-  if (at(4, 'ftyp') && M4A_BRANDS.some(br => at(8, br))) return { kind: 'audio', mime: 'audio/mp4', ext: 'm4a' };
-  if (at(0, 'ID3') || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0)) return { kind: 'audio', mime: 'audio/mpeg', ext: 'mp3' };
   return null;
 }
 
@@ -47,7 +42,7 @@ export const photosFull = (row: InvitationRow) => parseMedia(row.media).photos.l
 
 // ===== العرض: /media/<invitation id>/<ulid>.<ext> =====
 export const mediaRoute = new Hono<{ Bindings: Env }>();
-const KEY_RE = /^[0-9A-Z]{26}\/[0-9A-Z]{26}\.(webp|jpg|mp3|m4a)$/;
+const KEY_RE = /^[0-9A-Z]{26}\/[0-9A-Z]{26}\.(webp|jpg)$/;
 
 mediaRoute.get('/*', async c => {
   const key = c.req.path.slice('/media/'.length);
