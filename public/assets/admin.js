@@ -39,7 +39,7 @@
   // ===== الدخول =====
   function showLogin(msg) {
     app.innerHTML = `<div class="login"><form id="login" autocomplete="on">
-      <a class="logo" href="/"><i></i><span class="foilp">نورونا</span></a>
+      <a class="logo" href="/"><img src="/img/logo-mark.webp" alt="" width="57" height="64"><img class="word" src="/img/logo-word.webp" alt="نورونا" width="266" height="96"></a>
       <h1>لوحة الأدمن</h1>
       <input class="inp" type="password" id="pw" placeholder="الباسورد" autocomplete="current-password" required>
       <p class="err" id="lerr" ${msg ? '' : 'hidden'}>${esc(msg || '')}</p>
@@ -59,7 +59,7 @@
   const S = { status: '', q: '', orders: [], next: null, code: decodeURIComponent(location.hash.slice(1)) || null, detail: null };
 
   function showPanel() {
-    app.innerHTML = `<header class="bar"><div class="wrap"><a class="logo" href="/" style="font-size:24px"><i></i><span class="foilp">نورونا</span></a><span class="t">لوحة الأدمن</span><button class="btn btn-ghost sm" id="logout" type="button">خروج</button></div></header>
+    app.innerHTML = `<header class="bar"><div class="wrap"><a class="logo" href="/" style="font-size:24px"><img src="/img/logo-mark.webp" alt="" width="57" height="64"><img class="word" src="/img/logo-word.webp" alt="نورونا" width="266" height="96"></a><span class="t">لوحة الأدمن</span><button class="btn btn-ghost sm" id="logout" type="button">خروج</button></div></header>
     <section class="wrap stats" id="stats" aria-label="أرقام سريعة"></section>
     <main class="wrap panel-grid" id="grid">
       <section class="list-col card" aria-label="الطلبات">
@@ -125,7 +125,7 @@
       <button class="btn btn-ghost sm back" type="button" id="back">← الطلبات</button>
       <div class="dhead"><h2>${esc(o.code)}</h2><span class="st ${esc(o.status)}">${ORDER_ST[o.status]}</span></div>
       <dl class="kv">
-        <dt>الباقة</dt><dd>${PKG[o.package] || o.package}${o.addon ? ' + صور وأغنية' : ''}</dd>
+        <dt>الباقة</dt><dd>${PKG[o.package] || o.package}${o.addon ? ' + صور' : ''}</dd>
         <dt>الإجمالي</dt><dd><strong>${ar(o.total)} ج</strong></dd>
         <dt>الموبايل</dt><dd><a class="ltr mono" href="tel:${esc(o.contact_phone)}">${esc(o.contact_phone)}</a> · <a href="https://wa.me/${esc(waNumber(o.contact_phone))}" target="_blank" rel="noopener">واتساب</a></dd>
         <dt>اتطلب</dt><dd>${when(o.created_at)}</dd>
@@ -179,7 +179,7 @@
       tile('', 'اتدفع الشهر ده', ar(s.paid_month), `من ${orders(s.orders_month)} جم الشهر ده`),
       tile('', 'دعوات شغالة دلوقتي', ar(s.active), ''),
       tile('', 'ضيوف أكّدوا حضورهم', ar(s.guests), `${ar(s.views)} مشاهدة للدعوات`),
-      tile('', 'أخدوا الصور والأغنية', `${ar(pct(s.paid_addon, s.paid_all))}٪`, `${ar(s.paid_addon)} من ${orders(s.paid_all)} مدفوعة`),
+      tile('', 'أخدوا إضافة الصور', `${ar(pct(s.paid_addon, s.paid_all))}٪`, `${ar(s.paid_addon)} من ${orders(s.paid_all)} مدفوعة`),
     ].join('');
     $('#stats [data-show-pending]').addEventListener('click', () => {
       S.status = 'pending';

@@ -39,7 +39,7 @@ export function page(o: { title: string; body: string; head?: string; css?: stri
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(o.title)}</title>
 <meta name="theme-color" content="#06100D">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 ${o.noindex === false ? '' : '<meta name="robots" content="noindex">'}
@@ -63,7 +63,7 @@ export function notice(o: { title: string; kicker?: string; heading: string; tex
     css: ['/assets/page.css'],
     bodyClass: 'notice',
     body: `<main class="note-card">
-  <a class="logo" href="/"><i></i><span class="foilp">نورونا</span></a>
+  <a class="logo" href="/"><img src="/img/logo-mark.webp" alt="" width="57" height="64"><img class="word" src="/img/logo-word.webp" alt="نورونا" width="266" height="96"></a>
   ${o.kicker ? `<p class="eyebrow">${esc(o.kicker)}</p>` : ''}
   ${o.names ? `<h1 class="names foilp">${esc(o.names)}</h1>` : ''}
   <h2>${esc(o.heading)}</h2>

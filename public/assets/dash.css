@@ -98,7 +98,7 @@ fieldset.evb legend{padding:0 8px;color:var(--gold);font-family:var(--f-label);f
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:480px){.row2{grid-template-columns:1fr}.prow{grid-template-columns:104px minmax(0,1fr) 38px}}
 
-/* صوركم وأغنيتكم */
+/* صوركم */
 .mblock{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid rgba(217,181,107,.1)}
 .cov{width:150px;aspect-ratio:3/4;border-radius:50% 50% 14px 14px/30% 30% 14px 14px;overflow:hidden;background:rgba(255,255,255,.03);box-shadow:0 0 0 1px var(--line);display:grid;place-items:center;text-align:center}
 .cov img,.th img{width:100%;height:100%;object-fit:cover;display:block}
@@ -108,4 +108,3 @@ fieldset.evb legend{padding:0 8px;color:var(--gold);font-family:var(--f-label);f
 .file{position:relative;overflow:hidden}
 .vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
 .file:focus-within{outline:2px solid var(--gold);outline-offset:3px}
-.mblock audio{width:100%;max-width:420px}

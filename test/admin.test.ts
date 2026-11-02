@@ -9,7 +9,7 @@ describe('دخول الأدمن', () => {
     const r = await call('/api/admin/login', { method: 'POST', body: { password: 'test-admin-password' }, headers: ORIGIN });
     expect(r.status).toBe(200);
     const c = r.headers.get('set-cookie') || '';
-    expect(c).toMatch(/^__Host-zaffa_admin=\d{13}\./);
+    expect(c).toMatch(/^__Host-nawarona_admin=\d{13}\./);
     expect(c).toMatch(/HttpOnly/i);
     expect(c).toMatch(/Secure/i);
     expect(c).toMatch(/SameSite=Strict/i);
@@ -22,8 +22,8 @@ describe('دخول الأدمن', () => {
 
   it('من غير جلسة، أو بجلسة مزوّرة أو منتهية: ٤٠١', async () => {
     expect((await call('/api/admin/orders')).status).toBe(401);
-    expect((await call('/api/admin/orders', { headers: { cookie: '__Host-zaffa_admin=9999999999999.forged' } })).status).toBe(401);
-    expect((await call('/api/admin/orders', { headers: { cookie: `__Host-zaffa_admin=${Date.now() - 1000}.x` } })).status).toBe(401);
+    expect((await call('/api/admin/orders', { headers: { cookie: '__Host-nawarona_admin=9999999999999.forged' } })).status).toBe(401);
+    expect((await call('/api/admin/orders', { headers: { cookie: `__Host-nawarona_admin=${Date.now() - 1000}.x` } })).status).toBe(401);
   });
 
   it('١٠ محاولات غلط في ربع ساعة وبعدها بيوقف', async () => {
@@ -45,7 +45,7 @@ describe('الطلبات والتفعيل', () => {
     const inv = r.json.invitations[0];
     expect(inv.status).toBe('active');
     expect(inv.expires_at).toBe(cairoInstant(last, '21:30') + 30 * 864e5);
-    expect(inv.shareUrl).toBe(`https://zaffa.test/${o.invitations[0].slug}`);
+    expect(inv.shareUrl).toBe(`https://nawarona.test/${o.invitations[0].slug}`);
     expect((await call('/' + o.invitations[0].slug)).text).toContain('"rsvp_open":true');
     // مرة تانية: ٤٠٩
     expect((await call(`/api/admin/orders/${o.code}/paid`, { method: 'POST', body: {}, headers: h })).status).toBe(409);

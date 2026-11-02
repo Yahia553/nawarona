@@ -105,12 +105,12 @@ coupleApi.patch('/:slug', async c => {
   return c.json(await dashData(c, (await getInvitation(c.env.DB, row.slug))!));
 });
 
-// ===== صوركم وأغنيتكم (للطلبات اللي فيها الإضافة واتدفعت) =====
+// ===== صوركم (للطلبات اللي فيها الإضافة واتدفعت) =====
 // الرفع ملف واحد في كل طلب، والـ body هو الملف نفسه (من غير multipart) عشان الـ CPU
 async function mediaGate(c: C, row: InvitationRow) {
   const o = await c.env.DB.prepare('SELECT addon, status FROM orders WHERE id = ?').bind(row.order_id).first<{ addon: number; status: string }>();
-  if (!o?.addon) return fail('إضافة الصور والأغنية مش ضمن الطلب ده', 403);
-  if (o.status !== 'paid' || row.status === 'closed') return fail('هتقدروا ترفعوا الصور والأغنية بعد تأكيد الدفع', 403);
+  if (!o?.addon) return fail('إضافة الصور مش ضمن الطلب ده', 403);
+  if (o.status !== 'paid' || row.status === 'closed') return fail('هتقدروا ترفعوا الصور بعد تأكيد الدفع', 403);
   return null;
 }
 
@@ -124,13 +124,13 @@ coupleApi.post('/:slug/media', async c => {
   const kind = c.req.query('kind');
   if (!isMediaKind(kind)) return fail('نوع الملف مش معروف');
   const gate = await mediaGate(c, row); if (gate) return gate;
-  const rule = MEDIA_RULES[kind], tooBig = () => fail(rule.kind === 'audio' ? 'الأغنية أكبر من ١٠ ميجا' : 'الصورة أكبر من ٢ ميجا', 413);
+  const rule = MEDIA_RULES[kind], tooBig = () => fail('الصورة أكبر من ٢ ميجا', 413);
   if (Number(c.req.header('content-length') || 0) > rule.max) return tooBig();
   if (kind === 'photo' && photosFull(row)) return fail('وصلتوا لـ٦ صور، احذفوا صورة الأول', 409);
   const buf = await c.req.arrayBuffer();
   if (buf.byteLength > rule.max) return tooBig();
   const t = buf.byteLength >= 64 ? sniff(new Uint8Array(buf, 0, 16)) : null;
-  if (!t || t.kind !== rule.kind) return fail(rule.kind === 'audio' ? 'الأغنية لازم تكون mp3 أو m4a' : 'الصورة لازم تكون webp أو jpg');
+  if (!t || t.kind !== rule.kind) return fail('الصورة لازم تكون webp أو jpg');
 
   const { key, next, old } = await storeMedia(c.env, row, kind, buf, t.mime, t.ext);
   if (!(await saveMedia(c.env.DB, row, next)).meta.changes) {

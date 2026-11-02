@@ -1,6 +1,6 @@
 // صفحة الضيف الحقيقية: البيانات جاية من السيرفر جوه #invite-data، والرد بيتبعت للـ API.
 (() => {
-  const { $, createInvite } = window.Zaffa;
+  const { $, createInvite } = window.Nawarona;
   const data = JSON.parse($('#invite-data').textContent);
   const REPLY_KEY = 'zaffa-rsvp:' + data.slug;
 
@@ -88,6 +88,6 @@
     }
   }
 
-  createInvite($('#invite'), { p: 'g', getData: () => data, music: true, replay: true, onRsvp, afterRender });
+  createInvite($('#invite'), { p: 'g', getData: () => data, replay: true, onRsvp, afterRender });
   $('#invite .iv-open')?.focus();
 })();

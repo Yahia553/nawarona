@@ -17,8 +17,12 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 @keyframes pfoil{to{background-position:-250% 0}}
 .foilp{background:var(--foil-page);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:pfoil 9s linear infinite;padding-block:.1em}
-.logo{font-family:var(--f-logo);font-size:30px;line-height:1.4;text-decoration:none;display:inline-flex;align-items:center;gap:10px}
-.logo i{width:9px;height:9px;background:var(--gold);transform:rotate(45deg);display:inline-block;box-shadow:0 0 12px rgba(217,181,107,.8)}
+.logo{font-family:var(--f-logo);font-size:30px;line-height:1.4;text-decoration:none;display:inline-flex;align-items:flex-end;gap:10px}
+.logo img{height:1.35em;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(217,181,107,.35))}
+/* سطر الكلمة (آخر جسم الحروف) على مستوى آخر الشريطة في العلامة، والرجول اللي تحت السطر بتنزل تحته */
+.logo img.word{height:1.15em;margin-bottom:-.24em;filter:none}
+/* تقل اللوجو (الشريطة وجسم الحروف) تحت، والنجمة والنقط فوق خفاف: بنرفعه شوية عشان يبان في نص الهيدر مع اللينكات */
+header .logo{position:relative;top:-.28em}
 .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-label);font-size:14px;color:var(--gold);letter-spacing:.05em}
 .eyebrow::before,.eyebrow::after{content:"";width:6px;height:6px;background:var(--gold);transform:rotate(45deg);flex:none}
 

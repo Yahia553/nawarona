@@ -30,17 +30,17 @@ export function effectiveStatus(row: Pick<InvitationRow, 'status' | 'expires_at'
 
 const parse = <T>(s: string | null, fallback: T): T => { try { return s ? JSON.parse(s) : fallback; } catch { return fallback; } };
 
-// صور وأغنية العرسان: مفاتيح R2 في الداتابيز، ولينكات /media/… للمتصفح
-export type Media = { cover: string | null; photos: string[]; song: string | null };
+// صور العرسان: مفاتيح R2 في الداتابيز، ولينكات /media/… للمتصفح
+export type Media = { cover: string | null; photos: string[] };
 export const MAX_PHOTOS = 6;
 export function parseMedia(s: string | null): Media {
   const m = parse<Partial<Media> | null>(s, null) || {};
-  return { cover: m.cover || null, photos: Array.isArray(m.photos) ? m.photos.slice(0, MAX_PHOTOS) : [], song: m.song || null };
+  return { cover: m.cover || null, photos: Array.isArray(m.photos) ? m.photos.slice(0, MAX_PHOTOS) : [] };
 }
 const url = (k: string | null) => (k ? `/media/${k}` : null);
 export function mediaUrls(m: Media) {
-  if (!m.cover && !m.photos.length && !m.song) return null;
-  return { cover: url(m.cover), photos: m.photos.map(k => `/media/${k}`), song: url(m.song) };
+  if (!m.cover && !m.photos.length) return null;
+  return { cover: url(m.cover), photos: m.photos.map(k => `/media/${k}`) };
 }
 
 /** البيانات اللي بتتبعت للمتصفح عشان المحرك يرسم الدعوة. مفيش فيها أي حاجة سرية */

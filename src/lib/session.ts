@@ -1,7 +1,7 @@
 // جلسة الأدمن: كوكي فيها وقت الانتهاء + توقيع HMAC. مفيش جدول مستخدمين.
 import { hmac, safeEqual } from './crypto';
 
-export const ADMIN_COOKIE = '__Host-zaffa_admin';
+export const ADMIN_COOKIE = '__Host-nawarona_admin';
 export const SESSION_MS = 12 * 36e5;
 
 export async function makeSession(secret: string, now = Date.now()) {
