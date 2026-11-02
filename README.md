@@ -35,7 +35,7 @@
 - `INSTAPAY`: حساب إنستاباي.
 - `VFCASH`: رقم فودافون كاش.
 - `WHATSAPP`: رقم الواتساب بالكود الدولي من غير +، مثلًا `201012345678`.
-- `PUBLIC_DOMAIN`: الدومين، مثلًا `zaffa.app`.
+- `PUBLIC_DOMAIN`: الدومين، `nawarona.com`.
 
 ## تشغيله على جهازك
 محتاجين Node.js 18 أو أحدث.
@@ -122,14 +122,14 @@ npx wrangler deploy
 ```
 هيطلعلكم لينك `…workers.dev` تقدروا تجرّبوا عليه على طول.
 
-**٧. اربطوا الدومين:** من لوحة Cloudflare: **Workers & Pages ← zaffa ← Settings ← Domains & Routes ← Add ← Custom domain**، واكتبوا الدومين (لازم يكون على نفس حساب Cloudflare). أو حطوا في `wrangler.jsonc`:
+**٧. اربطوا الدومين:** من لوحة Cloudflare: **Workers & Pages ← nawarona ← Settings ← Domains & Routes ← Add ← Custom domain**، واكتبوا الدومين (لازم يكون على نفس حساب Cloudflare). أو حطوا في `wrangler.jsonc`:
 ```jsonc
-"routes": [{ "pattern": "zaffa.app", "custom_domain": true }]
+"routes": [{ "pattern": "nawarona.com", "custom_domain": true }]
 ```
 وارفعوا تاني بـ `npx wrangler deploy`.
 
 ### تحديثات بعد كده
-- تعديل في الكود أو الواجهة: `npx wrangler deploy`.
+- تعديل في الكود أو الواجهة: اعملوا commit و`git push` على `main`، والموقع بيتحدّث لوحده من GitHub.
 - migration جديدة في `migrations/`: `npx wrangler d1 migrations apply zaffa --remote` قبل الـ deploy.
 - دعوة تجريبية على الموقع الحقيقي (اختياري): `KEY_PEPPER=نفس-القيمة-اللي-في-secrets node scripts/seed.mjs --remote`
 
@@ -179,4 +179,4 @@ python scripts/make-small-images.py
 ```
 
 ### معاينة الصفحة الرئيسية لما تتشارك
-تاجات `og:` في أول `public/index.html` مكتوب فيها `https://zaffa.app`. لو الدومين مختلف غيّروه هناك.
+تاجات `og:` في أول `public/index.html` مكتوب فيها `https://nawarona.com`. لو الدومين مختلف غيّروه هناك.

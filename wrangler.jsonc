@@ -5,6 +5,7 @@
   // لازم ميكونش أحدث من اللي workerd بتاع التستات بيدعمه (@cloudflare/vitest-plugin)
   "compatibility_date": "2026-08-01",
   "observability": { "enabled": true },
+  "routes": [{ "pattern": "nawarona.com", "custom_domain": true }],
 
   // الواجهة كلها static. الطلبات اللي مالهاش ملف (/ahmd-sara، /api/…، /admin) بتروح للـ Worker
   "assets": {
@@ -31,7 +32,7 @@
     "INSTAPAY": "01552621135",
     "VFCASH": "",
     "WHATSAPP": "201552621135",
-    "PUBLIC_DOMAIN": "nawarona.yahiasaid553.workers.dev"
+    "PUBLIC_DOMAIN": "nawarona.com"
   }
   // Secrets (npx wrangler secret put …): ADMIN_PASSWORD, SESSION_SECRET, KEY_PEPPER
 }

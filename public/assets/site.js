@@ -2,7 +2,7 @@
 (() => {
   const { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, toDate, parts, pad2, Music, createInvite, slugify } = window.Zaffa;
   // ===== إعدادات المشروع: غيّر الأرقام دي قبل الإطلاق =====
-  const CONFIG = { price: 299, addon: 199, instapay: '01552621135', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.yahiasaid553.workers.dev' };
+  const CONFIG = { price: 299, addon: 199, instapay: '01552621135', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.com' };
 
   // تاريخ بعد n يوم (YYYY-MM-DD)
   const dayPlus = n => { const d = new Date(Date.now() + n * 864e5); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
