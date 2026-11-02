@@ -6,6 +6,8 @@
   "compatibility_date": "2026-08-01",
   "observability": { "enabled": true },
   "routes": [{ "pattern": "nawarona.com", "custom_domain": true }],
+  // من غيرها اللينكات القديمة على workers.dev بتقف
+  "workers_dev": true,
 
   // الواجهة كلها static. الطلبات اللي مالهاش ملف (/ahmd-sara، /api/…، /admin) بتروح للـ Worker
   "assets": {
