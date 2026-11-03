@@ -461,7 +461,27 @@ window.Nawarona = (() => {
   const MAP = { 'ا':'a','أ':'a','إ':'e','آ':'a','ب':'b','ت':'t','ث':'th','ج':'g','ح':'h','خ':'kh','د':'d','ذ':'z','ر':'r','ز':'z','س':'s','ش':'sh','ص':'s','ض':'d','ط':'t','ظ':'z','ع':'a','غ':'gh','ف':'f','ق':'q','ك':'k','ل':'l','م':'m','ن':'n','ه':'h','ة':'a','و':'o','ي':'y','ى':'a','ئ':'e','ؤ':'o','ء':'' };
   const slugify = v => String(v || '').trim().split('').map(ch => MAP[ch] ?? (/[a-z0-9]/i.test(ch) ? ch.toLowerCase() : '')).join('').replace(/(.)\1{2,}/g, '$1$1') || 'name';
 
+  // ===== تصغير الصور قبل الرفع (صوركم في اللوحة وصورة التحويل) =====
+  // لـ 1600px وwebp (أو jpg لو المتصفح مش بيعمل webp)، لحد ما تبقى ٢ ميجا أو أقل
+  async function shrinkImage(file) {
+    let src;
+    try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch (e) {
+      src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('الصورة دي مش مدعومة، جرّبوا صورة تانية')); im.src = URL.createObjectURL(file); });
+    }
+    const w0 = src.width || src.naturalWidth, h0 = src.height || src.naturalHeight;
+    for (const [max, q] of [[1600, .82], [1600, .7], [1280, .68], [1024, .62]]) {
+      const k = Math.min(1, max / Math.max(w0, h0)), cv = document.createElement('canvas');
+      cv.width = Math.round(w0 * k); cv.height = Math.round(h0 * k);
+      cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
+      let blob = await new Promise(r => cv.toBlob(r, 'image/webp', q));
+      if (!blob || blob.type !== 'image/webp') blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', q + .05));
+      if (blob && blob.size <= 2 * 1024 * 1024) return blob;
+    }
+    throw new Error('الصورة كبيرة أوي، جرّبوا صورة تانية');
+  }
+
   setInterval(() => { document.querySelectorAll('.cd[data-ts]').forEach(box => { const c = cdOf(+box.dataset.ts); box.querySelectorAll('[data-cd]').forEach(el => { el.textContent = ar(c[el.dataset.cd]); }); }); }, 30000);
 
-  return { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, occOf, wordOf, toDate, instant, fmtTime, parts, pad2, createInvite, slugify };
+  return { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, occOf, wordOf, toDate, instant, fmtTime, parts, pad2, createInvite, slugify, shrinkImage };
 })();

@@ -8,7 +8,7 @@ import { ADMIN_COOKIE, SESSION_MS, makeSession, passwordMatches, verifySession }
 import { DAY_MS, cairoInstant, cairoToday } from '../lib/time';
 import { normalizePhone } from '../lib/validate';
 import { HTML_HEADERS, page } from '../lib/html';
-import { effectiveStatus, expiryFor, type InvitationRow } from '../db';
+import { activateOrder, effectiveStatus, receiptPrefix, type InvitationRow } from '../db';
 
 type OrderRow = {
   id: string; code: string; package: number; addon: number; total: number; status: 'pending' | 'paid' | 'cancelled';
@@ -133,8 +133,9 @@ async function orderDetail(c: { env: Env; req: { url: string } }, o: OrderRow) {
        FROM rsvps WHERE invitation_id IN (${invs.map(() => '?').join(',')}) GROUP BY invitation_id`,
     ).bind(...invs.map(i => i.id)).all<{ invitation_id: string; g: number; b: number; declined: number; replies: number }>()).results
     : [];
+  const receipt = (await c.env.MEDIA.list({ prefix: receiptPrefix(o.id), limit: 1 })).objects.length > 0;
   return {
-    order: orderOut(o),
+    order: { ...orderOut(o), receipt },
     invitations: await Promise.all(invs.map(async i => {
       const s = stats.find(x => x.invitation_id === i.id);
       return {
@@ -158,14 +159,21 @@ adminApi.post('/orders/:code/paid', async c => {
   const db = c.env.DB, o = await getOrder(db, c.req.param('code'));
   if (!o) return fail('الطلب مش موجود', 404);
   if (o.status !== 'pending') return fail(o.status === 'paid' ? 'الطلب ده متفعّل خلاص' : 'الطلب ده ملغي', 409);
-  const now = Date.now();
-  const invs = (await db.prepare('SELECT id, events FROM invitations WHERE order_id = ?').bind(o.id).all<{ id: string; events: string }>()).results;
-  await db.batch([
-    db.prepare("UPDATE orders SET status = 'paid', paid_at = ? WHERE id = ? AND status = 'pending'").bind(now, o.id),
-    ...invs.map(i => db.prepare("UPDATE invitations SET status = 'active', activated_at = ?, expires_at = ? WHERE id = ? AND status IN ('pending', 'draft')")
-      .bind(now, expiryFor(i.events), i.id)),
-  ]);
+  await activateOrder(db, o.id);
   return c.json(await orderDetail(c, (await getOrder(db, o.code))!));
+});
+
+// صورة التحويل اللي العرسان رفعوها (الطلب اتفعّل بيها على طول، فلو مزوّرة: «إلغاء الطلب»)
+adminApi.get('/orders/:code/receipt', async c => {
+  const o = await getOrder(c.env.DB, c.req.param('code'));
+  if (!o) return fail('الطلب مش موجود', 404);
+  const first = (await c.env.MEDIA.list({ prefix: receiptPrefix(o.id), limit: 1 })).objects[0];
+  const obj = first && await c.env.MEDIA.get(first.key);
+  if (!obj) return fail('مفيش صورة تحويل للطلب ده', 404);
+  const h = new Headers();
+  obj.writeHttpMetadata(h);
+  h.set('X-Content-Type-Options', 'nosniff');
+  return new Response(obj.body, { headers: h });
 });
 
 adminApi.post('/orders/:code/cancel', async c => {

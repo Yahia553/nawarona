@@ -1,14 +1,14 @@
 // لوحة العرسان: /d/:slug?k=KEY + API تحت /api/d/:slug. المفتاح بيتقارن بالـ hash بس.
 import { Hono, type Context } from 'hono';
 import { fail, readJson } from './api';
-import { keyHash, previewToken, safeEqual } from '../lib/crypto';
+import { keyHash, previewToken, safeEqual, ulid } from '../lib/crypto';
 import { SLUG_RE } from '../lib/slug';
 import { cairoToday } from '../lib/time';
 import { validateEvents, validateNames, validateNotes, validateProgram, validateWording } from '../lib/validate';
 import { isOccasion, isTemplate } from '../occasions';
 import { HTML_HEADERS, page } from '../lib/html';
-import { effectiveStatus, expiryFor, getInvitation, publicInvite, type InvitationRow } from '../db';
-import { MEDIA_RULES, isMediaKind, photosFull, removeMedia, sniff, storeMedia } from './media';
+import { activateOrder, effectiveStatus, expiryFor, getInvitation, publicInvite, receiptPrefix, type InvitationRow } from '../db';
+import { MB, MEDIA_RULES, isMediaKind, photosFull, removeMedia, sniff, storeMedia } from './media';
 
 type C = Context<{ Bindings: Env }>;
 
@@ -45,7 +45,7 @@ async function dashData(c: C, row: InvitationRow) {
   const [rsvps, order] = await Promise.all([
     db.prepare('SELECT name, side, count, attending, message, created_at, updated_at FROM rsvps WHERE invitation_id = ? ORDER BY updated_at DESC LIMIT ?')
       .bind(row.id, RSVP_CAP).all<Rsvp>().then(r => r.results),
-    db.prepare('SELECT addon, status FROM orders WHERE id = ?').bind(row.order_id).first<{ addon: number; status: string }>(),
+    db.prepare('SELECT addon, status, total FROM orders WHERE id = ?').bind(row.order_id).first<{ addon: number; status: string; total: number }>(),
   ]);
   const yes = rsvps.filter(r => r.attending), g = yes.filter(r => r.side === 'g').reduce((a, r) => a + r.count, 0), b = yes.filter(r => r.side === 'b').reduce((a, r) => a + r.count, 0);
   return {
@@ -56,6 +56,8 @@ async function dashData(c: C, row: InvitationRow) {
       shareUrl: `${origin}/${row.slug}`,
       previewUrl: `${origin}/${row.slug}?preview=${await previewToken(c.env.SESSION_SECRET, row.slug)}`,
     },
+    // لسه ما دفعوش: المبلغ وأرقام التحويل عشان يدفعوا ويرفعوا الصورة من اللوحة
+    pay: order?.status === 'pending' ? { total: order.total, instapay: c.env.INSTAPAY, vfcash: c.env.VFCASH } : null,
     stats: { g, b, total: g + b, declined: rsvps.length - yes.length, replies: rsvps.length },
     rsvps: rsvps.map(r => ({ ...r, attending: !!r.attending })),
   };
@@ -152,6 +154,35 @@ coupleApi.delete('/:slug/media', async c => {
   if (!(await saveMedia(c.env.DB, row, r.next)).meta.changes) return fail('فيه تعديل تاني شغال، جرّبوا كمان ثانية', 409);
   c.executionCtx.waitUntil(c.env.MEDIA.delete(r.old));
   return c.json(await dashData(c, (await getInvitation(c.env.DB, row.slug))!));
+});
+
+// ===== صورة التحويل: بتفعّل الطلب كله على طول (الأدمن بيراجعها بعدين ويلغي لو مزوّرة) =====
+// نفس طريقة رفع الصور: الـ body هو الملف نفسه
+const RECEIPT_MAX = 2 * MB;
+
+coupleApi.post('/:slug/receipt', async c => {
+  const row = await authed(c);
+  if (row instanceof Response) return row;
+  const db = c.env.DB, o = await db.prepare('SELECT id, status FROM orders WHERE id = ?').bind(row.order_id).first<{ id: string; status: string }>();
+  if (!o || o.status === 'cancelled') return fail('الطلب ده ملغي، كلّمونا واتساب', 403);
+  // لو اتفعّل خلاص (من دعوة تانية في نفس الطلب أو من الأدمن) بنرجّع اللينكات من غير ما نحفظ صورة تانية
+  if (o.status === 'pending') {
+    const tooBig = () => fail('الصورة أكبر من ٢ ميجا', 413);
+    if (Number(c.req.header('content-length') || 0) > RECEIPT_MAX) return tooBig();
+    const buf = await c.req.arrayBuffer();
+    if (buf.byteLength > RECEIPT_MAX) return tooBig();
+    const t = buf.byteLength >= 64 ? sniff(new Uint8Array(buf, 0, 16)) : null;
+    if (!t) return fail('الصورة لازم تكون webp أو jpg');
+    await c.env.MEDIA.put(`${receiptPrefix(o.id)}${ulid()}.${t.ext}`, buf, { httpMetadata: { contentType: t.mime } });
+    await activateOrder(db, o.id);
+  }
+  const origin = new URL(c.req.url).origin;
+  const invs = (await db.prepare('SELECT slug, occasion, groom, bride FROM invitations WHERE order_id = ? ORDER BY created_at, slug').bind(o.id)
+    .all<{ slug: string; occasion: string; groom: string; bride: string }>()).results;
+  return c.json({
+    ...(await dashData(c, (await getInvitation(db, row.slug))!)),
+    links: invs.map(i => ({ ...i, shareUrl: `${origin}/${i.slug}` })),
+  });
 });
 
 // ===== CSV للإكسل =====

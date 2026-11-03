@@ -386,6 +386,14 @@ textarea.copybox{width:100%;min-height:150px;border-radius:12px;border:1px solid
 .payrow strong{font-family:ui-monospace,Menlo,monospace;font-size:15px;text-align:right;overflow-wrap:anywhere}
 .linkish{align-self:center;border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline;text-underline-offset:4px}
 .dstep.key{border:1px solid rgba(242,197,205,.5);background:rgba(242,197,205,.06)}
+/* رفع صورة التحويل، وبعده لينك الدعوة */
+.file{position:relative;overflow:hidden}
+.file:focus-within{outline:2px solid var(--gold);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+.dstep.paid{border:1px solid rgba(217,181,107,.55);background:linear-gradient(135deg,rgba(217,181,107,.16),rgba(217,181,107,.04))}
+.dstep.paid h4{font-size:18px;color:var(--gold-hi)}
+.dstep.paid .acts{display:flex;gap:8px;flex-wrap:wrap}
+.dstep.paid .acts .btn{flex:1}
 .dstep.key .warn{font-size:13px;color:#F2C5CD;margin:0}
 .dlink{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
 .dlink label{grid-column:1/-1;font-size:13px;color:var(--muted)}

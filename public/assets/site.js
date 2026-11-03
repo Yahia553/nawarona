@@ -1,6 +1,6 @@
 // اللاندينج والمصمم. محرك الدعوة نفسه في invite.js
 (() => {
-  const { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, toDate, parts, pad2, createInvite, slugify } = window.Nawarona;
+  const { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, toDate, parts, pad2, createInvite, slugify, shrinkImage } = window.Nawarona;
   // ===== إعدادات المشروع: غيّر الأرقام دي قبل الإطلاق =====
   const CONFIG = { price: 299, addon: 199, instapay: '01014338347', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.com' };
   // أحداث بيكسل ميتا (assets/pixel.js). ViewContent مرة واحدة في الزيارة، ومش من الخطوة اللي اتحفظت من زيارة قديمة
@@ -349,7 +349,7 @@
   document.querySelectorAll('[data-open-guest]').forEach(b => b.addEventListener('click', () => openGuest()));
 
   // ===== الطلب: ٣ خطوات (راجعوا ← بياناتكم ← الدفع) =====
-  // بيتبعت للسيرفر الأول (POST /api/orders) وبعدين الواتساب برقم الطلب.
+  // بيتبعت للسيرفر (POST /api/orders)، وبعد التحويل بيرفعوا صورته والدعوة بتشتغل على طول.
   // لو السيرفر مش متاح بنرجع للطريقة القديمة: كل التفاصيل في رسالة الواتساب، عشان البيع ما يقفش.
   const modal = $('#order');
   const PKG_NAME = { 1: 'دعوة واحدة', 2: 'دعوتين (التانية بنص السعر)', 3: '٣ دعوات (التالتة ببلاش)' };
@@ -413,11 +413,11 @@
     STEPS.forEach(k => { $('#ord-' + k).hidden = k !== s; });
     const at = STEPS.indexOf(s);
     document.querySelectorAll('#stepper li').forEach((li, i) => { li.classList.toggle('on', i === at); li.classList.toggle('done', i < at); li.toggleAttribute('aria-current', i === at); });
-    $('#order-h').textContent = s === 'review' ? 'طلبكم' : s === 'details' ? 'بياناتكم' : 'ادفعوا وابعتوا الإيصال';
+    $('#order-h').textContent = s === 'review' ? 'طلبكم' : s === 'details' ? 'بياناتكم' : 'ادفعوا وارفعوا صورة التحويل';
     if (s === 'review') renderReview();
     if (s === 'details') { $('#pay-total').textContent = `${ar(total())} ج`; $('#f-phone').value = S.phone || ''; $('#ord-err').hidden = true; }
     $('#order .sheet').scrollTop = 0;
-    (s === 'review' ? $('#to-details') : s === 'details' ? $('#f-phone') : $('#wa-link')).focus({ preventScroll: true });
+    (s === 'review' ? $('#to-details') : s === 'details' ? $('#f-phone') : paying ? $('#rc-file') : $('#wa-link')).focus({ preventScroll: true });
   }
   function openOrder(force) {
     if (force !== true) {
@@ -447,20 +447,25 @@
     $('#prev-list').innerHTML = list.map(o => `<p class="items-h"><span>طلب ${esc(o.code)}</span></p>${linkRows(o.invitations || [])}`).join('');
   }
 
-  // --- الخطوة ٣: الدفع ---
-  function waText(j) {
-    return [`طلب نورونا رقم ${j.orderCode}`, `الباقة: ${PKG_NAME[pkg()]}`, `الإضافات: ${S.addon ? 'صور' : 'مفيش'}`, `الإجمالي: ${j.total} جنيه`, '',
-      ...j.invitations.flatMap((x, i) => [labelOf(S.items[i] || S), `المعاينة: ${x.previewUrl}`]), '', 'ودي صورة إيصال التحويل:'].join('\n');
-  }
+  // --- الخطوة ٣: الدفع وصورة التحويل ---
+  // الصورة بتترفع بمفتاح لوحة أول دعوة، والسيرفر بيفعّل الطلب كله على طول ويرجّع لينكات الدعوات
+  let paying = null;
   function showDone(j) {
     $('#pay-ip').textContent = CONFIG.instapay; $('#pay-vf').textContent = CONFIG.vfcash;
     $('#pay-amount').textContent = `${ar(j ? j.total : total())} ج`;
     $('#ocode').hidden = !j; $('#ord-offline').hidden = !!j;
-    if (j) $('#ord-code').textContent = j.orderCode;
-    $('#wa-hint').textContent = j ? 'الرسالة جاهزة وفيها رقم طلبكم، بس ضيفوا صورة الإيصال.' : 'الرسالة جاهزة وفيها كل تفاصيل الطلب، بس ضيفوا صورة الإيصال.';
-    const text = j ? waText(j) : orderText();
-    $('#copybox').value = text; $('#copybox').hidden = true;
-    $('#wa-link').href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
+    $('#pay-step').hidden = false; $('#rc-step').hidden = !j; $('#wa-step').hidden = !!j; $('#paid-box').hidden = true;
+    $('#rc-status').hidden = true; $('#rc-file').value = ''; $('#rc-file').disabled = false;
+    paying = null;
+    if (j) {
+      $('#ord-code').textContent = j.orderCode;
+      const u = new URL(j.invitations[0].dashboardUrl, location.href);
+      paying = { code: j.orderCode, total: j.total, slug: decodeURIComponent(u.pathname.split('/')[2] || ''), key: u.searchParams.get('k') };
+    } else {
+      const text = orderText();
+      $('#copybox').value = text; $('#copybox').hidden = true;
+      $('#wa-link').href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
+    }
     const dl = $('#dlinks'); dl.hidden = !j;
     if (j) {
       const links = j.invitations.map((x, i) => ({ ...x, label: labelOf(S.items[i] || S) }));
@@ -472,6 +477,48 @@
         <p class="warn">اللينك ده ليكم انتو بس، ما تبعتوهوش لحد ولا في جروب. إحنا مش بنقدر نشوفه ولا نبعته تاني (ومحفوظ كمان على الجهاز ده).</p>`;
     }
     showStep('done');
+  }
+  // XHR عشان نعرض نسبة الرفع (fetch مش بيديها)
+  function sendReceipt(blob, onProgress) {
+    return new Promise((resolve, reject) => {
+      const x = new XMLHttpRequest();
+      x.open('POST', `api/d/${encodeURIComponent(paying.slug)}/receipt`);
+      x.setRequestHeader('Authorization', 'Bearer ' + paying.key);
+      x.setRequestHeader('Content-Type', blob.type || 'image/jpeg');
+      x.upload.onprogress = e => { if (e.lengthComputable) onProgress(e.loaded / e.total); };
+      x.onload = () => {
+        let j = {}; try { j = JSON.parse(x.responseText); } catch (e) {}
+        if (x.status === 200 && Array.isArray(j.links)) resolve(j); else reject(new Error(j.error || 'الرفع فشل، جرّبوا تاني'));
+      };
+      x.onerror = () => reject(new Error('النت فاصل؟ جرّبوا تاني'));
+      x.send(blob);
+    });
+  }
+  $('#rc-file').addEventListener('change', async e => {
+    const inp = e.target, f = inp.files[0], st = $('#rc-status'), say = t => { st.hidden = false; st.textContent = t; };
+    if (!f || !paying) return;
+    inp.disabled = true;
+    try {
+      say('بنجهّز الصورة…');
+      const r = await sendReceipt(await shrinkImage(f), p => say(`بنرفع… ${ar(Math.round(p * 100))}٪`));
+      track('Purchase', { value: paying.total, currency: 'EGP', num_items: r.links.length }, `paid-${paying.code}`);
+      showPaid(r.links);
+    } catch (er) { say(er.message); inp.disabled = false; inp.value = ''; }
+  });
+  // بعد الرفع على طول: لينك الدعوة يبعتوه للمعازيم
+  function showPaid(links) {
+    $('#paid-box').innerHTML = `<h4>تمام كده، اتأكد الدفع 🎉</h4>
+      <p class="hint">${links.length > 1 ? 'دعواتكم اشتغلت. دي لينكاتها، ابعتوها لكل المعازيم:' : 'دعوتكم اشتغلت. ده لينكها، ابعتوه لكل المعازيم:'}</p>
+      ${links.map(l => {
+        const id = `sl-${++linkId}`, o = OCC[l.occasion] || OCC.hennawed, msg = `${o.tag}: ${l.groom} و${l.bride}\nاتفضلوا دعوتنا 💛\n${l.shareUrl}`;
+        return `<div class="dlink"><label for="${id}">${esc(o.name)} · ${esc(l.groom)} و ${esc(l.bride)}</label><input id="${id}" readonly value="${esc(l.shareUrl)}"><button type="button" class="btn btn-ghost sm" data-copy="${id}">انسخ</button></div>
+          <div class="acts"><a class="btn btn-main sm" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">ابعتوها واتساب</a><a class="btn btn-ghost sm" href="${esc(l.shareUrl)}" target="_blank" rel="noopener">افتحوا الدعوة</a></div>`;
+      }).join('')}`;
+    ['#pay-step', '#rc-step', '#ocode'].forEach(sel => { $(sel).hidden = true; });
+    $('#paid-box').hidden = false;
+    $('#dlinks h4 b')?.remove();
+    $('#order-h').textContent = 'دعوتكم اشتغلت';
+    $('#order .sheet').scrollTop = 0;
   }
   async function submitOrder() {
     const err = $('#ord-err'), btn = $('#submit-order'), phone = $('#f-phone').value.trim();

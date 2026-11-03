@@ -342,7 +342,7 @@
       <div class="field">
         <label for="f-phone">رقم موبايلكم</label>
         <input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="20" placeholder="01xxxxxxxxx">
-        <small class="hint">عشان نكلّمكم لو احتجنا، ونبعتلكم لينك الدعوة أول ما تتفعّل</small>
+        <small class="hint">عشان نكلّمكم لو احتجنا</small>
       </div>
       <div class="paybox"><small>هتدفعوا</small><strong id="pay-total"></strong><small><span data-pay-methods>إنستاباي</span>، بعد ما تأكّدوا الطلب</small></div>
       <p class="ord-err" id="ord-err" role="alert" hidden></p>
@@ -353,19 +353,26 @@
     <div id="ord-done" class="ord-step" hidden>
       <p class="ocode" id="ocode" hidden><small>رقم طلبكم</small><strong id="ord-code" dir="ltr"></strong></p>
       <p class="ord-err" id="ord-offline" hidden>مش قادرين نوصل للسيرفر دلوقتي. ابعتولنا تفاصيل الطلب على الواتساب وهنكمّل معاكم من هناك.</p>
-      <div class="dstep">
+      <div class="dstep" id="pay-step">
         <h4><b>١</b>حوّلوا <span id="pay-amount"></span></h4>
         <div class="payrow"><span><small>إنستاباي</small><strong id="pay-ip" dir="ltr"></strong></span><button type="button" class="btn btn-ghost sm" data-copyval="pay-ip">نسخ</button></div>
         <div class="payrow" id="vf-row" hidden><span><small>فودافون كاش</small><strong id="pay-vf" dir="ltr"></strong></span><button type="button" class="btn btn-ghost sm" data-copyval="pay-vf">نسخ</button></div>
       </div>
-      <div class="dstep">
-        <h4><b>٢</b>ابعتوا صورة الإيصال واتساب</h4>
-        <p class="hint" id="wa-hint">الرسالة جاهزة وفيها رقم طلبكم، بس ضيفوا صورة الإيصال.</p>
+      <div class="dstep" id="rc-step" hidden>
+        <h4><b>٢</b>ارفعوا صورة التحويل</h4>
+        <p class="hint">سكرين شوت من التحويل. أول ما ترفعوها دعوتكم هتشتغل على طول.</p>
+        <label class="btn btn-main file">ارفعوا صورة التحويل<input class="vh" type="file" accept="image/*" id="rc-file"></label>
+        <p class="hint" id="rc-status" role="status" hidden></p>
+      </div>
+      <!-- لو السيرفر مش متاح بس: تفاصيل الطلب كلها في رسالة واتساب -->
+      <div class="dstep" id="wa-step" hidden>
+        <h4><b>٢</b>ابعتوا الطلب وصورة الإيصال واتساب</h4>
+        <p class="hint">الرسالة جاهزة وفيها كل تفاصيل الطلب، بس ضيفوا صورة الإيصال.</p>
         <a class="btn btn-main" id="wa-link" href="#" target="_blank" rel="noopener">افتحوا الواتساب</a>
         <button type="button" class="linkish" id="copy">أو انسخوا الرسالة</button>
         <textarea class="copybox" id="copybox" readonly aria-label="رسالة الطلب" hidden></textarea>
-        <p class="hint">هنفعّل الدعوة خلال ساعة من استلام الإيصال (من ١٢ الضهر لـ ١٢ بالليل). ولو ما اتفعّلتش، فلوسكم بترجع كاملة.</p>
       </div>
+      <div class="dstep paid" id="paid-box" hidden></div>
       <div class="dstep key" id="dlinks" hidden></div>
       <button type="button" class="btn btn-ghost" data-close>تمام</button>
     </div>

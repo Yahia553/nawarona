@@ -19,7 +19,20 @@ export type InvitationRow = {
   created_at: number; activated_at: number | null; expires_at: number | null;
 };
 
-export const getInvitation = (db: D1Database, slug: string) =>
+/** الطلب paid ودعواته active. من «تم الدفع» في الأدمن، ومن رفع العرسان لصورة التحويل */
+export async function activateOrder(db: D1Database, orderId: string, now = Date.now()) {
+  const invs = (await db.prepare('SELECT id, events FROM invitations WHERE order_id = ?').bind(orderId).all<{ id: string; events: string }>()).results;
+  await db.batch([
+    db.prepare("UPDATE orders SET status = 'paid', paid_at = ? WHERE id = ? AND status = 'pending'").bind(now, orderId),
+    ...invs.map(i => db.prepare("UPDATE invitations SET status = 'active', activated_at = ?, expires_at = ? WHERE id = ? AND status IN ('pending', 'draft')")
+      .bind(now, expiryFor(i.events), i.id)),
+  ]);
+}
+
+/** صور التحويل على R2 تحت receipts/<order id>/، ومش بتتعرض غير للأدمن */
+export const receiptPrefix = (orderId: string) => `receipts/${orderId}/`;
+
+export const getInvitation =(db: D1Database, slug: string) =>
   db.prepare('SELECT * FROM invitations WHERE slug = ?').bind(slug).first<InvitationRow>();
 
 /** الانتهاء بيتحسب وقت القراية، من غير cron */

@@ -1,6 +1,6 @@
 // لوحة المعازيم بتاعة العرسان: الأرقام، الردود، باب الردود، وتعديل بيانات الدعوة.
 (() => {
-  const { esc, ar, OCC, TEMPLATES, NOTE_CHIPS } = window.Nawarona;
+  const { esc, ar, OCC, TEMPLATES, NOTE_CHIPS, shrinkImage } = window.Nawarona;
   const $ = (s, r = document) => r.querySelector(s);
   const app = $('#app');
   const slug = decodeURIComponent(location.pathname.split('/')[2] || '');
@@ -56,7 +56,7 @@
 
       <section class="card" aria-label="لينك الدعوة">
         <h2>لينك دعوتكم</h2>
-        ${live ? '' : ended ? '<p class="notebox">الدعوة انتهت ومبقتش بتفتح للضيوف. الردود كلها لسه محفوظة هنا.</p>' : '<p class="notebox">الدعوة لسه بتتجهّز. أول ما نأكد التحويل هتشتغل، واللينك ده هيفتح لكل المعازيم.</p>'}
+        ${live ? '' : ended ? '<p class="notebox">الدعوة انتهت ومبقتش بتفتح للضيوف. الردود كلها لسه محفوظة هنا.</p>' : D.pay ? payHTML(D.pay) : '<p class="notebox">الدعوة لسه بتتجهّز. أول ما نأكد التحويل هتشتغل، واللينك ده هيفتح لكل المعازيم.</p>'}
         <div class="linkrow"><input class="inp" id="share" readonly value="${esc(i.shareUrl)}" aria-label="لينك الدعوة"><button class="btn btn-ghost sm" type="button" id="copy-share">انسخ</button></div>
         <div class="acts">
           ${live ? `<a class="btn btn-gold" href="https://wa.me/?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener">ابعتوها واتساب</a><a class="btn btn-ghost" href="${esc(i.shareUrl)}" target="_blank" rel="noopener">افتحوا الدعوة</a>`
@@ -97,6 +97,7 @@
       catch (err) { box.checked = !box.checked; if (err.message !== 'auth') toast(err.message); }
       finally { box.disabled = false; }
     });
+    $('#receipt')?.addEventListener('change', e => { if (e.target.files.length) sendReceipt(e.target.files[0]); });
     const md = $('#media');
     if (md) {
       md.addEventListener('change', e => { const inp = e.target.closest('[data-up]'); if (inp && inp.files.length) handleUpload(inp.dataset.up, [...inp.files]); });
@@ -122,8 +123,26 @@
       : `<li class="empty">${D.rsvps.length ? 'مفيش ردود بالبحث ده' : 'لسه محدش ردّ. ابعتوا اللينك وهتلاقوا الردود هنا أول بأول.'}</li>`;
   }
 
+  // ===== الدفع: لسه ما دفعوش، يحوّلوا ويرفعوا صورة التحويل والدعوة تشتغل على طول =====
+  function payHTML(p) {
+    const how = `إنستاباي على <b dir="ltr">${esc(p.instapay)}</b>${p.vfcash ? ` أو فودافون كاش على <b dir="ltr">${esc(p.vfcash)}</b>` : ''}`;
+    return `<p class="notebox">الدعوة لسه مستنية الدفع. حوّلوا <b>${ar(p.total)} ج</b> ${how}، وارفعوا صورة التحويل هنا ودعوتكم هتشتغل على طول.</p>
+      <div class="acts"><label class="btn btn-gold file">ارفعوا صورة التحويل<input class="vh" type="file" accept="image/*" id="receipt"></label></div>
+      <p class="muted small" id="rstatus" role="status" hidden></p>`;
+  }
+  async function sendReceipt(file) {
+    const inp = $('#receipt'), say = t => { const st = $('#rstatus'); if (st) { st.hidden = false; st.textContent = t; } };
+    inp.disabled = true;
+    try {
+      say('بنجهّز الصورة…');
+      const blob = await shrinkImage(file);
+      D = await upload('/receipt', blob, pct => say(`بنرفع… ${ar(Math.round(pct * 100))}٪`));
+      render(); toast('تمام، اتأكد الدفع ودعوتكم اشتغلت');
+      window.scrollTo({ top: 0 });
+    } catch (e) { if (e.message !== 'auth') { say(e.message); inp.disabled = false; inp.value = ''; } }
+  }
+
   // ===== صوركم =====
-  const MB = 1024 * 1024;
   function mediaHTML(i) {
     if (!i.media_allowed) return `<section class="card"><h2>صوركم</h2><p class="notebox">${i.status === 'closed' ? 'الدعوة دي مقفولة.' : 'هتقدروا ترفعوا الصور أول ما نأكد الدفع.'}</p></section>`;
     const m = i.media || { cover: null, photos: [] }, photos = m.photos || [];
@@ -141,29 +160,11 @@
       <p class="muted small" id="mstatus" role="status" hidden></p>
     </section>`;
   }
-  // الصورة بتتصغّر في المتصفح لـ 1600px وتتحوّل webp (أو jpg لو المتصفح مش بيعمل webp) قبل الرفع
-  async function shrink(file) {
-    let src;
-    try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
-    catch (e) {
-      src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('الصورة دي مش مدعومة، جرّبوا صورة تانية')); im.src = URL.createObjectURL(file); });
-    }
-    const w0 = src.width || src.naturalWidth, h0 = src.height || src.naturalHeight;
-    for (const [max, q] of [[1600, .82], [1600, .7], [1280, .68], [1024, .62]]) {
-      const k = Math.min(1, max / Math.max(w0, h0)), cv = document.createElement('canvas');
-      cv.width = Math.round(w0 * k); cv.height = Math.round(h0 * k);
-      cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
-      let blob = await new Promise(r => cv.toBlob(r, 'image/webp', q));
-      if (!blob || blob.type !== 'image/webp') blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', q + .05));
-      if (blob && blob.size <= 2 * MB) return blob;
-    }
-    throw new Error('الصورة كبيرة أوي، جرّبوا صورة تانية');
-  }
   // XHR عشان نعرض نسبة الرفع (fetch مش بيديها)
-  function upload(kind, blob, onProgress) {
+  function upload(path, blob, onProgress) {
     return new Promise((resolve, reject) => {
       const x = new XMLHttpRequest();
-      x.open('POST', `/api/d/${encodeURIComponent(slug)}/media?kind=${kind}`);
+      x.open('POST', `/api/d/${encodeURIComponent(slug)}${path}`);
       x.setRequestHeader('Authorization', 'Bearer ' + key);
       x.setRequestHeader('Content-Type', blob.type || 'image/jpeg');
       x.upload.onprogress = e => { if (e.lengthComputable) onProgress(e.loaded / e.total); };
@@ -186,8 +187,8 @@
       for (let n = 0; n < files.length; n++) {
         const f = files[n], of = files.length > 1 ? ` ${ar(n + 1)} من ${ar(files.length)}` : '';
         say('بنجهّز الصورة' + of + '…');
-        const blob = await shrink(f);
-        D = await upload(kind, blob, pct => say(`بنرفع${of}… ${ar(Math.round(pct * 100))}٪`));
+        const blob = await shrinkImage(f);
+        D = await upload('/media?kind=' + kind, blob, pct => say(`بنرفع${of}… ${ar(Math.round(pct * 100))}٪`));
       }
     } catch (e) { failed = e; }
     if (failed && failed.message === 'auth') return;

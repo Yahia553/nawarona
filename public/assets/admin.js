@@ -131,6 +131,10 @@
         <dt>اتطلب</dt><dd>${when(o.created_at)}</dd>
         ${o.paid_at ? `<dt>اتدفع</dt><dd>${when(o.paid_at)}</dd>` : ''}
       </dl>
+      ${o.receipt ? `<div class="receipt"><h3>صورة التحويل</h3>
+        <p class="muted">الدعوات اتفعّلت لوحدها أول ما العرسان رفعوها. اتأكدوا إن المبلغ وصل، ولو الصورة مزوّرة الغوا الطلب.</p>
+        <a href="/api/admin/orders/${encodeURIComponent(o.code)}/receipt" target="_blank" rel="noopener"><img src="/api/admin/orders/${encodeURIComponent(o.code)}/receipt" alt="صورة التحويل للطلب ${esc(o.code)}"></a>
+      </div>` : ''}
       <div class="acts">
         ${o.status === 'pending' ? '<button class="btn btn-gold" type="button" id="paid">تم الدفع</button>' : ''}
         ${o.status !== 'cancelled' ? '<button class="btn btn-danger" type="button" id="cancel">إلغاء الطلب</button>' : ''}
