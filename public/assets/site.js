@@ -7,6 +7,8 @@
   const track = (...a) => window.nwTrack && window.nwTrack(...a);
   // صفحة الإعلانات (/start): الزوار بيبدأوا في المصمم على طول، ومفيش هيرو
   const APP = document.body.classList.contains('app');
+  // لمسة اهتزاز خفيفة مع الاختيارات زي الأبلكيشن (أندرويد بس، والآيفون بيتجاهلها)
+  const buzz = () => { if (APP && navigator.vibrate && navigator.userActivation?.hasBeenActive) try { navigator.vibrate(8); } catch (e) {} };
   let ready = false, viewed = false;
   const viewTpl = id => { if (!ready || viewed) return; viewed = true; track('ViewContent', { content_name: id, content_type: 'product' }); };
 
@@ -122,7 +124,9 @@
     return `<fieldset class="evb"><legend>${label}</legend>
       <div class="row2"><div class="field"><label for="f-${k('date')}">اليوم</label><input id="f-${k('date')}" data-k="${k('date')}" type="date" min="${dayPlus(0)}" value="${v('date')}"></div><div class="field"><label for="f-${k('time')}">الساعة</label><input id="f-${k('time')}" data-k="${k('time')}" type="time" value="${v('time')}"></div></div>
       <div class="row2"><div class="field"><label for="f-${k('hall')}">اسم المكان</label><input id="f-${k('hall')}" data-k="${k('hall')}" maxlength="40" placeholder="مثلًا: ${prefix ? 'بيت العروسة' : 'قاعة الياسمين'}" value="${v('hall')}"></div><div class="field"><label for="f-${k('area')}">المنطقة</label><input id="f-${k('area')}" data-k="${k('area')}" maxlength="50" placeholder="مثلًا: التجمع الخامس" value="${v('area')}"></div></div>
-      <div class="field"><label for="f-${k('maps')}">لينك اللوكيشن من جوجل ماب (اختياري)</label><input id="f-${k('maps')}" data-k="${k('maps')}" type="url" inputmode="url" placeholder="https://maps.app.goo.gl/…" dir="ltr" value="${v('maps')}"></div>
+      <details class="mapsx"${v('maps') ? ' open' : ''}><summary>+ لينك اللوكيشن من جوجل ماب (اختياري)</summary>
+        <div class="field"><label for="f-${k('maps')}">لينك اللوكيشن</label><input id="f-${k('maps')}" data-k="${k('maps')}" type="url" inputmode="url" placeholder="https://maps.app.goo.gl/…" dir="ltr" value="${v('maps')}"></div>
+      </details>
     </fieldset>`;
   }
   function buildEvFields() { $('#evfields').innerHTML = occ().two ? evBlock('h', 'ليلة الحنة') + evBlock('', 'حفل الزفاف') : evBlock('', occ().ev); }
@@ -139,7 +143,7 @@
     updateTotal(); updateSlug(); syncPkg(); updateWhich();
   }
   let ut;
-  const refresh = () => { clearTimeout(ut); ut = setTimeout(() => { main.update(); hero.update(); }, 140); };
+  const refresh = () => { renderLive(); clearTimeout(ut); ut = setTimeout(() => { main.update(); hero.update(); }, 140); };
   ['groom', 'bride'].forEach(k => ['#f-' + k, '#h-' + k].forEach(sel => $(sel).addEventListener('input', e => {
     S[k] = e.target.value; ['#f-' + k, '#h-' + k].forEach(o => { if (o !== sel) $(o).value = S[k]; }); save(); updateSlug(); refresh();
   })));
@@ -162,20 +166,22 @@
   // اختيار المناسبة بينقلهم للقالب لوحده
   $('#occs').addEventListener('click', e => {
     const b = e.target.closest('[data-occ]'); if (!b) return;
-    setOcc(b.dataset.occ); S.started = true; save();
+    setOcc(b.dataset.occ); S.started = true; save(); buzz();
     document.querySelectorAll('#occs [data-occ]').forEach(x => x.setAttribute('aria-pressed', x === b));
     setTimeout(() => goStep(2), REDUCE ? 0 : 280);
   });
   let playT;
   const playMain = () => { clearTimeout(playT); playT = setTimeout(() => main.open(false), REDUCE ? 0 : 650); };
-  function selectTemplate(id) { S.tpl = id; save(); buildPickers(); main.reset(); loadTpl(id).then(playMain); }
+  function selectTemplate(id) { S.tpl = id; save(); buildPickers(); renderLive(); main.reset(); loadTpl(id).then(playMain); }
   // على الموبايل القالب بيتجرّب بالشاشة الكاملة، وعلى الكمبيوتر في الموبايل اللي جنب الخطوات
   $('#tpls').addEventListener('click', e => {
     const btn = e.target.closest('[data-tpl]'); if (!btn) return;
+    buzz();
     if (mobile.matches) openGuest(btn.dataset.tpl); else selectTemplate(btn.dataset.tpl);
   });
   $('#f-groom').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#f-bride').focus(); } });
-  $('#f-bride').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
+  // في صفحة الإعلانات Enter بعد اسم العروسة بيكمّل للخطوة الجاية
+  $('#f-bride').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); if (APP) $('#wz-next').click(); } });
   $('#f').addEventListener('input', e => { const f = e.target.closest('.field.bad'); if (f) { f.classList.remove('bad'); f.querySelector('.ferr')?.remove(); } });
   $('#wordings').addEventListener('click', e => {
     const btn = e.target.closest('[data-wd]'); if (!btn) return;
@@ -224,6 +230,7 @@
   $('#wz-sum').addEventListener('click', e => { const b = e.target.closest('[data-edit-step]'); if (b) goStep(+b.dataset.editStep); });
   function goStep(n, o = {}) {
     n = Math.max(1, Math.min(6, n));
+    const from = S.step;
     S.step = n; S.reach = Math.max(S.reach || 1, n); save();
     document.querySelectorAll('.wz-step').forEach(pn => { pn.hidden = +pn.dataset.step !== n; });
     document.querySelectorAll('#wz-steps [data-go]').forEach(b => {
@@ -241,7 +248,8 @@
     if (n === 2) { buildPickers(); main.reset(); loadTpl(S.tpl).then(playMain); viewTpl(S.tpl); }
     if (n >= 3) main.open(false);
     if (n === 6) renderSummary();
-    if (o.scroll !== false) {
+    if (APP) appStep(n, from, o);
+    else if (o.scroll !== false) {
       const top = $('#f').getBoundingClientRect().top;
       if (top < 60 || top > innerHeight * 0.5) $('#f').scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'start' });
     }
@@ -250,9 +258,52 @@
     if (S.step === 6) return openOrder();
     const errs = stepErrors(S, S.step);
     if (errs.length) { showErrors(errs); return; }
-    S.started = true; goStep(S.step + 1);
+    S.started = true; buzz(); goStep(S.step + 1);
   });
   $('#wz-back').addEventListener('click', () => goStep(S.step - 1));
+
+  // ===== صفحة الإعلانات: كل خطوة شاشة لوحدها زي الأبلكيشن =====
+  // كل خطوة ليها مكان في history، فزرار الرجوع بتاع الموبايل بيرجّع خطوة (أو بيقفل الشاشة المفتوحة) بدل ما يخرج من الصفحة.
+  // depth = عدد اللي احنا زوّدناه في history، عشان سهم الرجوع اللي فوق يرجع فيه بدل ما يزوّد
+  let depth = 0;
+  function navState(step, replace) {
+    const cur = history.state, st = { nw: 'step', step };
+    if (replace || !cur || cur.nw !== 'step') history.replaceState(st, '');
+    else if (cur.step !== step) { history.pushState(st, ''); depth++; }
+  }
+  // لو فيه شاشة فوق خلاص (الدعوة الكاملة وبعدها الطلب) التانية بتاخد مكانها
+  const pushOv = () => { if (APP && !(history.state && history.state.nw === 'ov')) { history.pushState({ nw: 'ov', step: S.step }, ''); depth++; } };
+  const popOv = () => { if (APP && history.state && history.state.nw === 'ov') history.back(); };
+  function appStep(n, from, o) {
+    $('#f').classList.toggle('rev', n < from);
+    document.body.dataset.step = n;
+    $('#live').hidden = n < 3;
+    renderLive();
+    if (!o.pop) navState(n, o.replace);
+    if (n !== from) window.scrollTo(0, 0);
+    // الكيبورد يفتح على اسم العريس على طول (بس لو هما اللي داسوا، مش أول ما الصفحة تفتح)
+    if (n === 3 && ready && blank(S.groom) && mobile.matches) $('#f-groom').focus({ preventScroll: true });
+    if (n === 6 && from === 5 && !o.pop && ready) openGuest(null, true);
+  }
+  // كارت فوق الخطوات فيه أساميهم وميعادهم على خلفية القالب، وبيتحدّث مع كل حرف
+  function renderLive() {
+    if (!APP) return;
+    $('#lv-bg').className = `lv-bg sw-${S.tpl}`;
+    $('#lv-occ').textContent = occ().name;
+    $('#lv-names').textContent = `${nm(S.groom, 'العريس')} و${nm(S.bride, 'العروسة')}`;
+    const e = evs()[evs().length - 1], dp = e.date ? parts(toDate(e)) : null;
+    $('#lv-when').textContent = dp ? `${dp.wd} ${dp.day} ${dp.mon}${blank(e.hall) ? '' : ` · ${e.hall.trim()}`}` : 'دعوتكم بتتحدّث قدامكم وانتو بتكتبوا';
+  }
+  if (APP) {
+    addEventListener('popstate', e => {
+      depth = Math.max(0, depth - 1);
+      if (!guest.hidden) closeGuest(true);
+      if (!modal.hidden) closeOrder(true);
+      const st = e.state && e.state.step;
+      if (st && st !== S.step) goStep(st, { pop: true });
+    });
+    $('#ab-back').addEventListener('click', () => { if (depth > 0) history.back(); else goStep(S.step - 1, { replace: true }); });
+  }
   $('#wz-steps').addEventListener('click', e => {
     const b = e.target.closest('[data-go]'); if (!b || b.disabled) return;
     const k = +b.dataset.go;
@@ -334,20 +385,35 @@
   }
 
   // ===== الشاشة الكاملة =====
-  const guest = $('#guest'); let gInst = null, tryTpl = null;
-  function openGuest(tpl) {
+  // reveal: صفحة الإعلانات بعد الخطوة ٥، الدعوة بتتفتح قدامهم وتحتها «اطلبوها» على طول
+  const guest = $('#guest'); let gInst = null, tryTpl = null, reveal = false;
+  function openGuest(tpl, isReveal) {
     tryTpl = typeof tpl === 'string' ? tpl : null;
+    reveal = isReveal === true;
     if (tryTpl) viewTpl(tryTpl);
-    guest.hidden = false; document.body.style.overflow = 'hidden';
+    guest.hidden = false; document.body.style.overflow = 'hidden'; pushOv();
     gInst = createInvite($('#gscreen'), { p: 'g', getData: toInvite, getTpl: () => tryTpl || S.tpl, replay: true, onRsvp: demoRsvp });
-    $('#gbar').hidden = !tryTpl;
+    $('#gbar').hidden = !tryTpl && !reveal;
+    $('#gbar-back').textContent = reveal ? 'عدّلوا' : 'رجوع للقوالب';
+    if (reveal) $('#gbar-pick').textContent = `اطلبوها بـ ${ar(BUNDLE[1])} جنيه`;
     if (tryTpl) { const id = tryTpl; $('#gbar-pick').textContent = `اختاروا ${tplName(id)}`; loadTpl(id).then(() => setTimeout(() => { if (gInst && tryTpl === id) gInst.open(false); }, REDUCE ? 0 : 350)); }
     else $('#gscreen .iv-open')?.focus();
   }
-  function closeGuest() { gInst && gInst.destroy(); gInst = null; tryTpl = null; $('#gbar').hidden = true; guest.hidden = true; document.body.style.overflow = ''; }
-  $('#gclose').addEventListener('click', closeGuest);
-  $('#gbar-back').addEventListener('click', closeGuest);
-  $('#gbar-pick').addEventListener('click', () => { const id = tryTpl; closeGuest(); selectTemplate(id); toast(`اخترتوا ${tplName(id)}`); });
+  // keepHistory: لما الـ history اتغيّر خلاص (زرار الرجوع)، أو لما الخطوة الجاية هتاخد مكانه
+  function closeGuest(keepHistory) {
+    if (guest.hidden) return;
+    gInst && gInst.destroy(); gInst = null; tryTpl = null; reveal = false; $('#gbar').hidden = true; guest.hidden = true; document.body.style.overflow = '';
+    if (keepHistory !== true) popOv();
+  }
+  $('#gclose').addEventListener('click', () => closeGuest());
+  $('#gbar-back').addEventListener('click', () => closeGuest());
+  // في صفحة الإعلانات اختيار القالب بيكمّل على الأسامي على طول
+  $('#gbar-pick').addEventListener('click', () => {
+    // الطلب بياخد مكان الشاشة الكاملة في history، عشان الرجوع من الطلب يرجّع للخطوة ٦ على طول
+    if (reveal) { buzz(); closeGuest(true); openOrder(); return; }
+    const id = tryTpl; buzz(); closeGuest(APP); selectTemplate(id);
+    if (APP) goStep(3); else toast(`اخترتوا ${tplName(id)}`);
+  });
   document.querySelectorAll('[data-open-guest]').forEach(b => b.addEventListener('click', () => openGuest()));
 
   // ===== الطلب: ٣ خطوات (راجعوا ← بياناتكم ← الدفع) =====
@@ -388,16 +454,16 @@
   }
   $('#ord-review').addEventListener('click', e => {
     const ed = e.target.closest('[data-edit]'), rm = e.target.closest('[data-rm]'), add = e.target.closest('[data-add]');
-    if (ed) { closeOrder(); switchTo(+ed.dataset.edit); goDesign(); }
+    if (ed) { closeOrder(true); switchTo(+ed.dataset.edit); goDesign(); }
     if (rm) { removeDraft(+rm.dataset.rm); renderReview(); }
-    if (add) { addDraft(); closeOrder(); goDesign(); }
+    if (add) { addDraft(); closeOrder(true); goDesign(); }
   });
   $('#to-details').addEventListener('click', () => {
     save();
     const i = S.items.findIndex(d => firstBadStep(d));
     if (i >= 0) {
       const st = firstBadStep(S.items[i]);
-      closeOrder(); switchTo(i, st); goDesign(); setTimeout(() => showErrors(stepErrors(S, st)), 450);
+      closeOrder(true); switchTo(i, st); goDesign(); setTimeout(() => showErrors(stepErrors(S, st)), 450);
       toast(S.items.length > 1 ? `الدعوة ${ar(i + 1)} فاضلها شوية بيانات` : 'فاضل شوية بيانات');
       return;
     }
@@ -408,14 +474,15 @@
   // --- الخطوة ٢: بياناتكم ---
   $('#f-phone').addEventListener('input', e => { S.phone = e.target.value; save(); $('#ord-err').hidden = true; });
   $('#f-phone').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitOrder(); } });
-  $('#back-review').addEventListener('click', () => showStep('review'));
+  // صفحة الإعلانات من غير «راجعوا» (الخطوة ٦ فيها الملخص)، فالرجوع بيقفل الطلب
+  $('#back-review').addEventListener('click', () => APP ? closeOrder() : showStep('review'));
 
   const STEPS = ['review', 'details', 'done'];
   function showStep(s) {
     STEPS.forEach(k => { $('#ord-' + k).hidden = k !== s; });
     const at = STEPS.indexOf(s);
     document.querySelectorAll('#stepper li').forEach((li, i) => { li.classList.toggle('on', i === at); li.classList.toggle('done', i < at); li.toggleAttribute('aria-current', i === at); });
-    $('#order-h').textContent = s === 'review' ? 'طلبكم' : s === 'details' ? 'بياناتكم' : 'ادفعوا وارفعوا صورة التحويل';
+    $('#order-h').textContent = s === 'review' ? 'طلبكم' : s === 'details' ? (APP ? 'آخر خطوة' : 'بياناتكم') : 'ادفعوا وارفعوا صورة التحويل';
     if (s === 'review') renderReview();
     if (s === 'details') { $('#pay-total').textContent = `${ar(total())} ج`; $('#f-phone').value = S.phone || ''; $('#ord-err').hidden = true; }
     $('#order .sheet').scrollTop = 0;
@@ -429,8 +496,8 @@
     }
     track('InitiateCheckout', { value: total(), currency: 'EGP', num_items: S.items.length });
     renderPrev();
-    modal.hidden = false; document.body.style.overflow = 'hidden';
-    showStep('review');
+    modal.hidden = false; document.body.style.overflow = 'hidden'; pushOv();
+    showStep(APP ? 'details' : 'review');
   }
 
   // لينكات لوحة العرسان بترجع مرة واحدة بس، فبنحفظها على الجهاز كمان
@@ -551,7 +618,11 @@
     if (b) { const inp = $('#' + b.dataset.copy); copyText(inp.value, 'اتنسخ اللينك', () => { inp.focus(); inp.select(); toast('اللينك متحدد، انسخوه من القايمة'); }); }
     if (v) { const t = $('#' + v.dataset.copyval).textContent; copyText(t, 'اتنسخ', () => toast(t)); }
   });
-  function closeOrder() { modal.hidden = true; document.body.style.overflow = ''; }
+  function closeOrder(keepHistory) {
+    if (modal.hidden) return;
+    modal.hidden = true; document.body.style.overflow = '';
+    if (keepHistory !== true) popOv();
+  }
   document.querySelectorAll('[data-order]').forEach(b => b.addEventListener('click', () => openOrder()));
   modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('[data-close]')) closeOrder(); });
   $('#copy').addEventListener('click', () => {
@@ -584,10 +655,10 @@
   updatePayMethods();
   function updateContact() {
     const href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent('أهلًا نورونا، عندي سؤال عن الدعوات')}`;
-    $('#wa-fab').href = href; $('#footer-wa').href = href; $('#top-wa').href = href;
+    ['#wa-fab', '#footer-wa', '#top-wa', '#ab-help'].forEach(sel => { $(sel).href = href; });
   }
   updateContact();
-  ['#wa-fab', '#footer-wa', '#top-wa'].forEach(sel => $(sel).addEventListener('click', () => track('Contact')));
+  ['#wa-fab', '#footer-wa', '#top-wa', '#ab-help'].forEach(sel => $(sel).addEventListener('click', () => track('Contact')));
   // بيختفي والمصمم قدامهم (عشان ما يغطيش الشريط اللي تحت) وفي آخر الصفحة (فيه لينك واتساب في الفوتر)
   const fabHide = new Set();
   const fabWatch = e => { e.isIntersecting ? fabHide.add(e.target) : fabHide.delete(e.target); $('#wa-fab').classList.toggle('off', fabHide.size > 0); };

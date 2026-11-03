@@ -561,3 +561,64 @@ body.app .top .links,body.app .top [data-start],body.app .hero,body.app main>sec
 body.app .top-wa{display:inline-flex;align-self:center}
 body.app section#design{padding-block:28px 64px}
 body.app #design .sec-head{margin-bottom:24px}
+
+/* لينك اللوكيشن اختياري: سطر صغير بيفتح الخانة */
+.mapsx summary{cursor:pointer;list-style:none;color:var(--gold);font-size:14px;padding:4px 0;width:max-content}
+.mapsx summary::-webkit-details-marker{display:none}
+.mapsx[open] summary{display:none}
+.ab,.live{display:none}
+
+/* ===== صفحة الإعلانات على الموبايل: المصمم شاشة كاملة زي الأبلكيشن =====
+   شريط فوق (رجوع، الخطوة، سؤال)، كارت الدعوة بيتحدّث، كل خطوة شاشة بتدخل من الجنب، والزرار الأساسي تحت الإبهام */
+body.app{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+@media (max-width:940px){
+  body.app header.top,body.app #design .sec-head,body.app #which{display:none}
+  body.app section#design{padding:0}
+  body.app #design>.wrap{padding:0;max-width:none}
+  body.app .designer>form.wz{background:transparent;border:0;border-radius:0;min-height:100vh;min-height:100dvh;gap:16px;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+
+  body.app .wz-top{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 12px;background:rgba(6,16,13,.9);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);border-bottom:1px solid rgba(217,181,107,.12)}
+  body.app .ab{display:contents}
+  body.app .ab-btn{grid-row:1;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:0;padding:0;background:rgba(255,255,255,.06);color:var(--ink);cursor:pointer;text-decoration:none;transition:transform .15s,background .2s}
+  body.app .ab-btn:active{transform:scale(.92);background:rgba(255,255,255,.12)}
+  body.app .ab-btn svg{width:22px;height:22px}
+  body.app #ab-back{grid-column:1}
+  body.app #ab-help{grid-column:3;color:var(--gold)}
+  body.app .ab-logo{display:none;grid-column:1;grid-row:1;justify-self:center;width:32px;height:auto}
+  body.app[data-step="1"] #ab-back{display:none}
+  body.app[data-step="1"] .ab-logo{display:block}
+  body.app .wz-mini{grid-column:2;grid-row:1;text-align:center;font-size:13px;gap:7px}
+
+  body.app .live{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:0 16px;min-height:120px;padding:14px 16px 18px;border-radius:20px;border:1px solid rgba(217,181,107,.35);background:#000;color:var(--ink);font:inherit;text-align:center;cursor:pointer;box-shadow:0 18px 40px -22px rgba(217,181,107,.5);transition:transform .15s}
+  body.app .live:active{transform:scale(.98)}
+  body.app .lv-bg{position:absolute;inset:0;z-index:-2;opacity:.6;transition:opacity .4s}
+  body.app .live::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at center,rgba(4,10,8,.4),rgba(4,10,8,.88))}
+  body.app .lv-occ{font-family:var(--f-label);font-size:12px;color:var(--gold)}
+  body.app .lv-names{font-family:var(--f-display);font-size:30px;line-height:1.5;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  body.app .lv-when{font-size:13px;color:#E6DECD}
+  body.app .lv-play{position:absolute;top:9px;left:10px;display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--gold-hi);background:rgba(0,0,0,.5);border-radius:99px;padding:3px 10px}
+  body.app .lv-play svg{width:11px;height:11px}
+
+  /* الشاشة بتدخل من الجنب: من غير clip الصفحة بتوسع وتتزق */
+  body.app main{overflow-x:clip}
+  body.app .wz-step{padding:4px 16px 0;animation:appin .34s cubic-bezier(.2,.7,.2,1) both}
+  body.app .wz.rev .wz-step{animation-name:appback}
+  body.app .wz-h{font-size:28px}
+  body.app .evb .row2{grid-template-columns:1fr 1fr;gap:10px}
+
+  body.app .wz-nav{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;border-radius:0;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+  body.app #wz-back{display:none}
+  body.app #wz-next{width:100%;min-height:54px;font-size:17px}
+  body.app .wz-nav .btn:active{transform:scale(.97)}
+  body.app .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+
+  /* الطلب والدفع: شاشة كاملة مش نافذة */
+  body.app .modal{padding:0;align-items:stretch;background:var(--bg)}
+  body.app .modal .sheet{max-width:none;max-height:none;height:100%;border-radius:0;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(28px + env(safe-area-inset-bottom,0px));animation:appup .3s cubic-bezier(.2,.7,.2,1) both}
+  body.app #stepper,body.app #back-review{display:none}
+  body.app .ord-step .btn-main{min-height:54px;font-size:17px}
+}
+@keyframes appin{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes appback{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes appup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){body.app .wz-step,body.app .modal .sheet{animation:none}}
