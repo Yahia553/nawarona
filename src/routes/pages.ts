@@ -3,7 +3,7 @@ import { OCCASIONS, isOccasion, ogImage } from '../occasions';
 import { RESERVED, SLUG_RE } from '../lib/slug';
 import { previewToken, safeEqual } from '../lib/crypto';
 import { arabicWhen } from '../lib/time';
-import { HTML_HEADERS, esc, jsonForScript, notice, page } from '../lib/html';
+import { HTML_HEADERS, LANDING_CSP, esc, jsonForScript, notice, page } from '../lib/html';
 import { effectiveStatus, getInvitation, publicInvite, type InvitationRow } from '../db';
 
 export const pages = new Hono<{ Bindings: Env }>();
@@ -34,6 +34,19 @@ function ogTags(r: InvitationRow, origin: string) {
       + `\n<meta name="twitter:card" content="summary_large_image">\n<meta name="description" content="${esc(desc)}">`,
   };
 }
+
+// ===== صفحة الإعلانات: نفس الصفحة الرئيسية، بس المصمم والطلب لوحدهم (body.app في site.css و site.js) =====
+pages.get('/start', async c => {
+  const res = await c.env.ASSETS.fetch(new URL('/', c.req.url));
+  if (!res.ok) return res;
+  const page = new HTMLRewriter()
+    .on('body', { element: e => { e.setAttribute('class', 'app'); } })
+    .on('title', { element: e => { e.setInnerContent('نورونا | صمّموا دعوة فرحكم ببلاش'); } })
+    // نسخة تانية من الصفحة الرئيسية، فمش لازم تظهر في جوجل
+    .on('head', { element: e => { e.append('<meta name="robots" content="noindex">', { html: true }); } })
+    .transform(res);
+  return new Response(page.body, { headers: { ...HTML_HEADERS, 'Content-Security-Policy': LANDING_CSP, 'Cache-Control': 'public, no-cache' } });
+});
 
 pages.get('/:slug', async c => {
   const slug = c.req.param('slug');

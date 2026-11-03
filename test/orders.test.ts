@@ -91,3 +91,15 @@ describe('GET /api/config', () => {
     expect(r.json.whatsapp).toBe(env.WHATSAPP);
   });
 });
+
+describe('صفحة الإعلانات /start', () => {
+  it('نفس الصفحة الرئيسية بـ body.app، وبيكسل ميتا مسموح، ومش متأرشفة', async () => {
+    const r = await call('/start');
+    expect(r.status).toBe(200);
+    expect(r.text).toContain('<body class="app">');
+    expect(r.text).toContain('id="f"');
+    expect(r.text).toContain('assets/pixel.js');
+    expect(r.text).toContain('<meta name="robots" content="noindex">');
+    expect(r.headers.get('content-security-policy')).toContain('https://connect.facebook.net');
+  });
+});

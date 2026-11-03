@@ -1,5 +1,5 @@
 # هيدرز الملفات الـ static (الـ Worker بيحط نفسها على الصفحات اللي بيرسمها: src/lib/html.ts)
-# اللاندينج بس فيها دومينات ميتا زيادة عشان البيكسل (assets/pixel.js)
+# اللاندينج بس فيها دومينات ميتا زيادة عشان البيكسل (assets/pixel.js). صفحة الإعلانات /start بيرسمها الـ Worker بنفس الـ CSP (LANDING_CSP)
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

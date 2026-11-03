@@ -5,6 +5,8 @@
   const CONFIG = { price: 299, addon: 199, instapay: '01014338347', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.com' };
   // أحداث بيكسل ميتا (assets/pixel.js). ViewContent مرة واحدة في الزيارة، ومش من الخطوة اللي اتحفظت من زيارة قديمة
   const track = (...a) => window.nwTrack && window.nwTrack(...a);
+  // صفحة الإعلانات (/start): الزوار بيبدأوا في المصمم على طول، ومفيش هيرو
+  const APP = document.body.classList.contains('app');
   let ready = false, viewed = false;
   const viewTpl = id => { if (!ready || viewed) return; viewed = true; track('ViewContent', { content_name: id, content_type: 'product' }); };
 
@@ -99,7 +101,7 @@
     if (REDUCE) return;
     heroCycle = setInterval(() => { if (!heroVisible || document.hidden) return; const i = TEMPLATES.findIndex(t => t.id === heroTpl); heroShow(TEMPLATES[(i + 1) % TEMPLATES.length].id); }, 11000);
   }
-  setTimeout(() => hero.open(false), 1500); restartCycle();
+  if (!APP) { setTimeout(() => hero.open(false), 1500); restartCycle(); }
   $('#phone-hero').addEventListener('pointerdown', () => clearInterval(heroCycle), { passive: true });
 
   // ===== المصمم =====
@@ -582,10 +584,10 @@
   updatePayMethods();
   function updateContact() {
     const href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent('أهلًا نورونا، عندي سؤال عن الدعوات')}`;
-    $('#wa-fab').href = href; $('#footer-wa').href = href;
+    $('#wa-fab').href = href; $('#footer-wa').href = href; $('#top-wa').href = href;
   }
   updateContact();
-  ['#wa-fab', '#footer-wa'].forEach(sel => $(sel).addEventListener('click', () => track('Contact')));
+  ['#wa-fab', '#footer-wa', '#top-wa'].forEach(sel => $(sel).addEventListener('click', () => track('Contact')));
   // بيختفي والمصمم قدامهم (عشان ما يغطيش الشريط اللي تحت) وفي آخر الصفحة (فيه لينك واتساب في الفوتر)
   const fabHide = new Set();
   const fabWatch = e => { e.isIntersecting ? fabHide.add(e.target) : fabHide.delete(e.target); $('#wa-fab').classList.toggle('off', fabHide.size > 0); };

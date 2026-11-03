@@ -5,7 +5,7 @@ const MAP: Record<string, string> = { 'ا':'a','أ':'a','إ':'e','آ':'a','ب':'
 export const slugify = (v: string) =>
   String(v || '').trim().split('').map(ch => MAP[ch] ?? (/[a-z0-9]/i.test(ch) ? ch.toLowerCase() : '')).join('').replace(/(.)\1{2,}/g, '$1$1') || 'name';
 
-export const RESERVED = new Set(['api', 'assets', 'img', 'media', 'd', 'admin', 'p']);
+export const RESERVED = new Set(['api', 'assets', 'img', 'media', 'd', 'admin', 'p', 'start']);
 export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const baseSlug = (groom: string, bride: string) => `${slugify(groom)}-${slugify(bride)}`.slice(0, 48).replace(/-+$/, '');

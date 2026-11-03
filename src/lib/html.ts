@@ -22,6 +22,12 @@ export const CSP = [
   "frame-ancestors 'none'",
 ].join('; ');
 
+/** اللاندينج (public/_headers) وصفحة الإعلانات /start: نفس الـ CSP + دومينات بيكسل ميتا */
+export const LANDING_CSP = CSP
+  .replace("script-src 'self'", "script-src 'self' https://connect.facebook.net")
+  .replace("img-src 'self' data: blob:", "img-src 'self' data: blob: https://www.facebook.com")
+  .replace("connect-src 'self'", "connect-src 'self' https://www.facebook.com https://connect.facebook.net");
+
 export const HTML_HEADERS: Record<string, string> = {
   'Content-Type': 'text/html; charset=utf-8',
   'Content-Security-Policy': CSP,
