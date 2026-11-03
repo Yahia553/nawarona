@@ -268,8 +268,8 @@
   let depth = 0;
   function navState(step, replace) {
     const cur = history.state, st = { nw: 'step', step };
-    if (replace || !cur || cur.nw !== 'step') history.replaceState(st, '');
-    else if (cur.step !== step) { history.pushState(st, ''); depth++; }
+    if (replace || !cur || (cur.nw !== 'step' && cur.nw !== 'welcome')) history.replaceState(st, '');
+    else if (cur.nw === 'welcome' || cur.step !== step) { history.pushState(st, ''); depth++; }
   }
   // لو فيه شاشة فوق خلاص (الدعوة الكاملة وبعدها الطلب) التانية بتاخد مكانها
   const pushOv = () => { if (APP && !(history.state && history.state.nw === 'ov')) { history.pushState({ nw: 'ov', step: S.step }, ''); depth++; } };
@@ -299,6 +299,7 @@
       depth = Math.max(0, depth - 1);
       if (!guest.hidden) closeGuest(true);
       if (!modal.hidden) closeOrder(true);
+      if (e.state && e.state.nw === 'welcome') { showWelcome(); return; }
       const st = e.state && e.state.step;
       if (st && st !== S.step) goStep(st, { pop: true });
     });
@@ -643,6 +644,22 @@
   buildPickers(); buildEvFields(); buildExtras(); fillFields(); renderDash(); main.update(); hero.update();
   goStep(S.step || 1, { scroll: false });
   ready = true;
+
+  // ===== شاشة الترحيب (صفحة الإعلانات، لأول زيارة بس): الدعوة التجريبية بتتفتح قدامهم وزرار واحد يبدأوا بيه =====
+  // زرار الرجوع من الخطوة ١ بيرجّعها، واللي بدأوا قبل كده بيكمّلوا من مكانهم على طول
+  const welcome = $('#welcome');
+  function showWelcome() {
+    if (!$('#wl-phone .phone')) $('#wl-phone').append($('.hero-phone .phone'));
+    welcome.hidden = false; document.body.classList.add('wl-on');
+    heroShow(heroTpl); restartCycle();
+  }
+  $('#wl-go').addEventListener('click', () => {
+    buzz(); clearInterval(heroCycle);
+    welcome.classList.add('out'); document.body.classList.remove('wl-on');
+    setTimeout(() => { welcome.hidden = true; welcome.classList.remove('out'); }, REDUCE ? 0 : 300);
+    S.started = true; save(); goStep(S.step || 1);
+  });
+  if (APP && !S.started) { history.replaceState({ nw: 'welcome' }, ''); showWelcome(); }
   // «شوفوا دعوتكم بأساميكم» من الهيرو: الأسامي اتكتبت، فيبدأوا من اختيار المناسبة
   document.querySelectorAll('.quick .go, [data-start]').forEach(a => a.addEventListener('click', () => { S.started = true; save(); goStep(S.reach > 1 ? S.step : 1, { scroll: false }); }));
 

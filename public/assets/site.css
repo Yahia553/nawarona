@@ -622,3 +622,24 @@ body.app{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
 @keyframes appback{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 @keyframes appup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){body.app .wz-step,body.app .modal .sheet{animation:none}}
+
+/* ===== شاشة الترحيب (صفحة الإعلانات /start) ===== */
+body.wl-on{overflow:hidden}
+.welcome{position:fixed;inset:0;z-index:45;overflow-y:auto;overscroll-behavior:contain;display:flex;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 22px calc(env(safe-area-inset-bottom,0px) + 18px);background:radial-gradient(ellipse 90% 55% at 50% 32%,rgba(217,181,107,.18),transparent 70%),var(--bg);animation:wlin .5s ease both}
+.welcome.out{animation:wlout .3s ease both}
+.wl-in{width:100%;max-width:420px;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
+.wl-logo{font-size:26px}
+.wl-phone .phone{width:min(186px,23vh);border-radius:30px;padding:7px;animation:wlfloat 6s ease-in-out infinite}
+.wl-phone .phone::after{width:54px;height:14px;top:12px}
+.wl-phone .screen{border-radius:24px}
+.wl-h{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,8.6vw,40px);line-height:1.4;margin:6px 0 0}
+.wl-sub{color:var(--muted);font-size:15px;line-height:1.75;margin:0;max-width:330px}
+.wl-facts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.wl-facts li{font-size:12.5px;color:var(--gold-hi);border:1px solid rgba(217,181,107,.35);background:rgba(217,181,107,.07);border-radius:99px;padding:4px 11px}
+.wl-go{width:100%;min-height:56px;font-size:18px;margin-top:8px}
+.wl-go:active{transform:scale(.97)}
+.wl-note{color:var(--muted);font-size:13px;margin:0}
+@keyframes wlin{from{opacity:0}to{opacity:1}}
+@keyframes wlout{to{opacity:0;transform:translateY(-14px)}}
+@keyframes wlfloat{50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.welcome,.welcome.out,.wl-phone .phone{animation:none}}
