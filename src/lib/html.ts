@@ -7,7 +7,7 @@ export const esc = (t: unknown) =>
 export const jsonForScript = (v: unknown) =>
   JSON.stringify(v).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 
-// لازم تفضل زي public/_headers
+// لازم تفضل زي public/_headers (ما عدا دومينات بيكسل ميتا اللي على اللاندينج بس)
 export const CSP = [
   "default-src 'self'",
   "script-src 'self'",

@@ -3,6 +3,10 @@
   const { REDUCE, $, ar, esc, nm, TEMPLATES, OCC, OCC_ORDER, NOTE_CHIPS, toDate, parts, pad2, createInvite, slugify } = window.Nawarona;
   // ===== إعدادات المشروع: غيّر الأرقام دي قبل الإطلاق =====
   const CONFIG = { price: 299, addon: 199, instapay: '01014338347', vfcash: '', whatsapp: '201552621135', domain: 'nawarona.com' };
+  // أحداث بيكسل ميتا (assets/pixel.js). ViewContent مرة واحدة في الزيارة، ومش من الخطوة اللي اتحفظت من زيارة قديمة
+  const track = (...a) => window.nwTrack && window.nwTrack(...a);
+  let ready = false, viewed = false;
+  const viewTpl = id => { if (!ready || viewed) return; viewed = true; track('ViewContent', { content_name: id, content_type: 'product' }); };
 
   // تاريخ بعد n يوم (YYYY-MM-DD)
   const dayPlus = n => { const d = new Date(Date.now() + n * 864e5); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
@@ -232,7 +236,7 @@
     // في آخر خطوة الزرار الأساسي تحت الإبهام بيبقى «اطلبوها»
     $('#wz-next').textContent = n === 6 ? `اطلبوها بـ ${ar(BUNDLE[1])} جنيه` : 'التالي';
     showErrors([]);
-    if (n === 2) { buildPickers(); main.reset(); loadTpl(S.tpl).then(playMain); }
+    if (n === 2) { buildPickers(); main.reset(); loadTpl(S.tpl).then(playMain); viewTpl(S.tpl); }
     if (n >= 3) main.open(false);
     if (n === 6) renderSummary();
     if (o.scroll !== false) {
@@ -331,6 +335,7 @@
   const guest = $('#guest'); let gInst = null, tryTpl = null;
   function openGuest(tpl) {
     tryTpl = typeof tpl === 'string' ? tpl : null;
+    if (tryTpl) viewTpl(tryTpl);
     guest.hidden = false; document.body.style.overflow = 'hidden';
     gInst = createInvite($('#gscreen'), { p: 'g', getData: toInvite, getTpl: () => tryTpl || S.tpl, replay: true, onRsvp: demoRsvp });
     $('#gbar').hidden = !tryTpl;
@@ -420,6 +425,7 @@
       const bad = firstBadStep(S);
       if (bad) { goStep(bad, { scroll: false }); goDesign(); setTimeout(() => showErrors(stepErrors(S, bad)), 450); toast('فاضل شوية بيانات قبل الطلب'); return; }
     }
+    track('InitiateCheckout', { value: total(), currency: 'EGP', num_items: S.items.length });
     renderPrev();
     modal.hidden = false; document.body.style.overflow = 'hidden';
     showStep('review');
@@ -480,7 +486,7 @@
     try {
       const res = await fetch('api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ package: pkg(), addon: !!S.addon, contact_phone: phone, invitations }) });
       const j = await res.json().catch(() => null);
-      if (res.ok && j && j.orderCode) { remember(j); showDone(j); }
+      if (res.ok && j && j.orderCode) { remember(j); showDone(j); track('Lead', { value: j.total, currency: 'EGP', num_items: j.invitations.length }, `order-${j.orderCode}`); }
       else if (res.status < 500 && j && j.error) { err.textContent = j.error; err.hidden = false; }
       else showDone(null);
     } catch (e) { showDone(null); }
@@ -516,6 +522,7 @@
   }));
   buildPickers(); buildEvFields(); buildExtras(); fillFields(); renderDash(); main.update(); hero.update();
   goStep(S.step || 1, { scroll: false });
+  ready = true;
   // «شوفوا دعوتكم بأساميكم» من الهيرو: الأسامي اتكتبت، فيبدأوا من اختيار المناسبة
   document.querySelectorAll('.quick .go, [data-start]').forEach(a => a.addEventListener('click', () => { S.started = true; save(); goStep(S.reach > 1 ? S.step : 1, { scroll: false }); }));
 
@@ -531,6 +538,7 @@
     $('#wa-fab').href = href; $('#footer-wa').href = href;
   }
   updateContact();
+  ['#wa-fab', '#footer-wa'].forEach(sel => $(sel).addEventListener('click', () => track('Contact')));
   // بيختفي والمصمم قدامهم (عشان ما يغطيش الشريط اللي تحت) وفي آخر الصفحة (فيه لينك واتساب في الفوتر)
   const fabHide = new Set();
   const fabWatch = e => { e.isIntersecting ? fabHide.add(e.target) : fabHide.delete(e.target); $('#wa-fab').classList.toggle('off', fabHide.size > 0); };

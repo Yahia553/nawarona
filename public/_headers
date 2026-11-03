@@ -1,13 +1,14 @@
 # هيدرز الملفات الـ static (الـ Worker بيحط نفسها على الصفحات اللي بيرسمها: src/lib/html.ts)
+# اللاندينج بس فيها دومينات ميتا زيادة عشان البيكسل (assets/pixel.js)
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
 /
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://www.facebook.com; media-src 'self' blob:; connect-src 'self' https://www.facebook.com https://connect.facebook.net; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
 
 /index.html
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://www.facebook.com; media-src 'self' blob:; connect-src 'self' https://www.facebook.com https://connect.facebook.net; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
 
 /img/*
   Cache-Control: public, max-age=2592000
