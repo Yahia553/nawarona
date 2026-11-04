@@ -224,8 +224,8 @@ window.Nawarona = (() => {
   }
 
   // ===== المؤثرات (Canvas) =====
-  const DUR = { royal: 2400, rose: 2900, night: 2300, katb: 2200, white: 1900 , henna: 2300, ring: 2700, garden: 2400 };
-  const BURST = { royal: 650, rose: 1050, night: 450, katb: 900, white: 700 , henna: 800, ring: 900, garden: 700 };
+  const DUR = { royal: 2400, rose: 3850, night: 2300, katb: 2200, white: 1900 , henna: 2300, ring: 2700, garden: 2400 };
+  const BURST = { royal: 650, rose: 2050, night: 450, katb: 900, white: 700 , henna: 800, ring: 900, garden: 700 };
   function makeFX(el, tpl) {
     const kind = ({ henna: 'royal', ring: 'royal', garden: 'rose' })[tpl] || tpl;
     const back = el.querySelector('.fx-back'), front = el.querySelector('.fx-front');
@@ -389,7 +389,7 @@ window.Nawarona = (() => {
       st.opening = true;
       const el = st.el, op = el.querySelector('.iv-open'), tpl = st.tpl;
       el.classList.add('opening');
-      const STAGES = { rose: [[0, 'st1'], [320, 'st2'], [760, 'st3'], [880, 'st4'], [1950, 'st5']] }[tpl] || [];
+      const STAGES = { rose: [[0, 'st1'], [320, 'st2'], [760, 'st3'], [880, 'st4'], [1950, 'stc'], [3350, 'st5']] }[tpl] || [];
       STAGES.forEach(([ms, c]) => { if (REDUCE) el.classList.add(c); else setTimeout(() => { if (st.el === el) el.classList.add(c); }, ms); });
       const T = REDUCE ? 300 : DUR[tpl];
       setTimeout(() => { if (st.el === el) st.fx.burst(); }, REDUCE ? 0 : BURST[tpl]);

@@ -225,8 +225,11 @@
 .iv.st2 .env-flap{transform:rotateX(180deg)}
 .iv.st3 .env-flap{z-index:0}
 .iv.st3 .env-flap::after{opacity:1;transition:opacity .25s}
-.iv.st4 .env-card{transform:translateY(-62%)}
-.iv.st5 .envl{transform:scale(1.25) translateY(18%);opacity:0}
+.iv.st4 .env-card{transform:translateY(-104%)}
+/* الجواب طلع على آخره: ييجي قدّام والظرف يختفي، فالأسامي تبان كاملة في النص */
+.iv.stc .env-card{z-index:6;transform:translateY(-14%) scale(1.22);box-shadow:0 0 0 1px rgba(194,84,109,.15),0 24px 50px -18px rgba(120,40,60,.45);transition:transform .95s cubic-bezier(.3,.6,.2,1),box-shadow .95s}
+.iv.stc .env-back,.iv.stc .env-front,.iv.stc .env-flap{opacity:0;transition:opacity .7s ease .1s}
+.iv.st5 .envl{transform:scale(1.18) translateY(6%);opacity:0}
 .op-rose .op-hint{color:#9B3B52}
 .op-rose .op-top{font-family:"Aref Ruqaa",serif;font-size:22px;color:#9B3B52;transition:opacity .5s}
 .iv.opening .op-rose .op-top,.iv.opening .op-rose .op-hint{opacity:0}
