@@ -623,13 +623,13 @@ body.app{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
 @keyframes appup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){body.app .wz-step,body.app .modal .sheet{animation:none}}
 
-/* ===== شاشة الترحيب (صفحة الإعلانات /start) ===== */
+/* ===== شاشة الترحيب (صفحة الإعلانات /start): اللوجو والكلام والزرار مجموعين في نص الشاشة ===== */
 body.wl-on{overflow:hidden}
 .welcome{position:fixed;inset:0;z-index:45;overflow-y:auto;overscroll-behavior:contain;display:flex;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 22px) 24px calc(env(safe-area-inset-bottom,0px) + 22px);background:linear-gradient(180deg,rgba(6,16,13,.5) 0%,rgba(6,16,13,.8) 40%,var(--bg) 78%),url(../img/sm/royal-hall-bg.webp) center top/cover no-repeat,var(--bg);animation:wlin .5s ease both}
 .welcome.out{animation:wlout .3s ease both}
-.wl-in{width:100%;max-width:420px;min-height:100%;display:flex;flex-direction:column;align-items:center;gap:28px;text-align:center}
+.wl-in{width:100%;max-width:420px;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;text-align:center}
 .wl-logo{font-size:28px}
-.wl-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;animation:wlup .7s cubic-bezier(.2,.7,.2,1) .1s both}
+.wl-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;animation:wlup .7s cubic-bezier(.2,.7,.2,1) .1s both}
 .wl-eye{font-family:var(--f-label);font-size:13px;color:var(--gold);margin:0;display:flex;align-items:center;gap:10px}
 .wl-eye::before,.wl-eye::after{content:"";width:22px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
 .wl-eye::after{transform:scaleX(-1)}
@@ -640,7 +640,7 @@ body.wl-on{overflow:hidden}
 .wl-facts li+li{border-inline-start:1px solid rgba(217,181,107,.18)}
 .wl-facts b{font-family:var(--f-display);font-size:28px;line-height:1.3;color:var(--gold-hi)}
 .wl-facts span{font-size:12.5px;color:var(--muted);line-height:1.5}
-.wl-end{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;animation:wlup .7s cubic-bezier(.2,.7,.2,1) .25s both}
+.wl-end{width:100%;margin-top:6px;display:flex;flex-direction:column;align-items:center;gap:10px;animation:wlup .7s cubic-bezier(.2,.7,.2,1) .25s both}
 .wl-go{width:100%;min-height:58px;font-size:19px}
 .wl-go:active{transform:scale(.97)}
 .wl-note{color:var(--muted);font-size:13px;margin:0}
