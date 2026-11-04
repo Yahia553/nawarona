@@ -645,16 +645,12 @@
   goStep(S.step || 1, { scroll: false });
   ready = true;
 
-  // ===== شاشة الترحيب (صفحة الإعلانات، لأول زيارة بس): الدعوة التجريبية بتتفتح قدامهم وزرار واحد يبدأوا بيه =====
+  // ===== شاشة الترحيب (صفحة الإعلانات، لأول زيارة بس): كلمتين وزرار واحد يبدأوا بيه =====
   // زرار الرجوع من الخطوة ١ بيرجّعها، واللي بدأوا قبل كده بيكمّلوا من مكانهم على طول
   const welcome = $('#welcome');
-  function showWelcome() {
-    if (!$('#wl-phone .phone')) $('#wl-phone').append($('.hero-phone .phone'));
-    welcome.hidden = false; document.body.classList.add('wl-on');
-    heroShow(heroTpl); restartCycle();
-  }
+  function showWelcome() { welcome.hidden = false; document.body.classList.add('wl-on'); }
   $('#wl-go').addEventListener('click', () => {
-    buzz(); clearInterval(heroCycle);
+    buzz();
     welcome.classList.add('out'); document.body.classList.remove('wl-on');
     setTimeout(() => { welcome.hidden = true; welcome.classList.remove('out'); }, REDUCE ? 0 : 300);
     S.started = true; save(); goStep(S.step || 1);
