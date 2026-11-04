@@ -625,7 +625,7 @@ body.app{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
 
 /* ===== شاشة الترحيب (صفحة الإعلانات /start): باب القصر مالي الشاشة، والكلام والزرار مجموعين في النص ===== */
 body.wl-on{overflow:hidden}
-.welcome{position:fixed;inset:0;z-index:45;overflow-y:auto;overscroll-behavior:contain;display:flex;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 22px) 24px calc(env(safe-area-inset-bottom,0px) + 22px);background:linear-gradient(rgba(4,10,8,.55),rgba(4,10,8,.55)),url(../img/royal-doors.webp) center/cover no-repeat,var(--bg);animation:wlin .5s ease both}
+.welcome{position:fixed;inset:0;z-index:45;overflow-y:auto;overscroll-behavior:contain;display:flex;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 22px) 24px calc(env(safe-area-inset-bottom,0px) + 22px);background:linear-gradient(rgba(0,0,0,.78),rgba(0,0,0,.78)),url(../img/royal-doors.webp) center/cover no-repeat,var(--bg);animation:wlin .5s ease both}
 .welcome.out{animation:wlout .3s ease both}
 .wl-in{width:100%;max-width:420px;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;text-align:center}
 .wl-logo{font-size:28px}
