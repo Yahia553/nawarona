@@ -3,7 +3,8 @@
   // من Events Manager. لو فاضي البيكسل مقفول و nwTrack مبتعملش حاجة
   const PIXEL_ID = '987393671096414';
   window.nwTrack = () => {};
-  if (!PIXEL_ID) return;
+  // على الدومين الحقيقي بس: التجارب على localhost كانت بتتحسب طلبات ودفع حقيقي وبتلخبط تعلّم الإعلانات
+  if (!PIXEL_ID || !/(^|\.)nawarona\.com$/.test(location.hostname)) return;
   const fbq = window.fbq = function () { fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments); };
   if (!window._fbq) window._fbq = fbq;
   fbq.push = fbq; fbq.loaded = true; fbq.version = '2.0'; fbq.queue = [];
