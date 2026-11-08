@@ -26,6 +26,7 @@
         <h2>دعوتكم جاهزة، فاضل الدفع بس</h2>
         <p class="muted">حوّلوا <b>${ar(d.total)} ج</b> ${how}، وارفعوا صورة التحويل هنا ودعوتكم هتشتغل على طول، ويوصلكم لينكها تبعتوه لكل المعازيم.</p>
         <div class="linkrow"><input class="inp" id="ip" readonly value="${esc(d.instapay)}" aria-label="رقم إنستاباي"><button class="btn btn-ghost sm" type="button" id="copy-ip">انسخ الرقم</button></div>
+        ${d.instapayLink ? `<div class="acts"><a class="btn btn-ghost" href="${esc(d.instapayLink)}" target="_blank" rel="noopener">افتحوا إنستاباي وحوّلوا ${ar(d.total)} ج</a></div>` : ''}
         <div class="acts"><label class="btn btn-gold file">ارفعوا صورة التحويل<input class="vh" type="file" accept="image/*" id="receipt"></label></div>
         <p class="muted small" id="rstatus" role="status" hidden></p>
       </section>`, d);

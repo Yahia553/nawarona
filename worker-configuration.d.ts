@@ -7,6 +7,7 @@ interface __BaseEnv_Env {
 	ASSETS: Fetcher;
 	INSTAPAY: "01014338347";
 	VFCASH: "";
+	INSTAPAY_LINK: "";
 	WHATSAPP: "201552621135";
 	PUBLIC_DOMAIN: "zaffa.app";
 	ADMIN_PASSWORD: string;

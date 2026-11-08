@@ -57,7 +57,7 @@ async function dashData(c: C, row: InvitationRow) {
       previewUrl: `${origin}/${row.slug}?preview=${await previewToken(c.env.SESSION_SECRET, row.slug)}`,
     },
     // لسه ما دفعوش: المبلغ وأرقام التحويل عشان يدفعوا ويرفعوا الصورة من اللوحة
-    pay: order?.status === 'pending' ? { total: order.total, instapay: c.env.INSTAPAY, vfcash: c.env.VFCASH } : null,
+    pay: order?.status === 'pending' ? { total: order.total, instapay: c.env.INSTAPAY, vfcash: c.env.VFCASH, ...(c.env.INSTAPAY_LINK ? { instapayLink: c.env.INSTAPAY_LINK } : {}) } : null,
     stats: { g, b, total: g + b, declined: rsvps.length - yes.length, replies: rsvps.length },
     rsvps: rsvps.map(r => ({ ...r, attending: !!r.attending })),
   };

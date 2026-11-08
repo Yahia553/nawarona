@@ -127,7 +127,7 @@
   function payHTML(p) {
     const how = `إنستاباي على <b dir="ltr">${esc(p.instapay)}</b>${p.vfcash ? ` أو فودافون كاش على <b dir="ltr">${esc(p.vfcash)}</b>` : ''}`;
     return `<p class="notebox">الدعوة لسه مستنية الدفع. حوّلوا <b>${ar(p.total)} ج</b> ${how}، وارفعوا صورة التحويل هنا ودعوتكم هتشتغل على طول.</p>
-      <div class="acts"><label class="btn btn-gold file">ارفعوا صورة التحويل<input class="vh" type="file" accept="image/*" id="receipt"></label></div>
+      <div class="acts">${p.instapayLink ? `<a class="btn btn-ghost" href="${esc(p.instapayLink)}" target="_blank" rel="noopener">افتحوا إنستاباي</a>` : ''}<label class="btn btn-gold file">ارفعوا صورة التحويل<input class="vh" type="file" accept="image/*" id="receipt"></label></div>
       <p class="muted small" id="rstatus" role="status" hidden></p>`;
   }
   async function sendReceipt(file) {

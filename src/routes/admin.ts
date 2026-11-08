@@ -137,7 +137,7 @@ async function orderDetail(c: { env: Env; req: { url: string } }, o: OrderRow) {
   const receipt = (await c.env.MEDIA.list({ prefix: receiptPrefix(o.id), limit: 1 })).objects.length > 0;
   return {
     // لسه ما دفعوش: لينك الدفع اللي بيتبعت في رسالة التذكير
-    order: { ...orderOut(o), receipt, payUrl: o.status === 'pending' ? await payUrl(c.env, origin, o) : null },
+    order: { ...orderOut(o), receipt, payUrl: o.status === 'pending' ? await payUrl(c.env, origin, o) : null, instapay: c.env.INSTAPAY, instapayLink: c.env.INSTAPAY_LINK || null },
     invitations: await Promise.all(invs.map(async i => {
       const s = stats.find(x => x.invitation_id === i.id);
       return {

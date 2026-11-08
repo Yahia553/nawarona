@@ -39,7 +39,7 @@ async function authed(c: C): Promise<Order | Response> {
 async function payData(c: C, o: Order) {
   const links = await orderLinks(c, o.id);
   return {
-    code: o.code, status: o.status, total: o.total, instapay: c.env.INSTAPAY, vfcash: c.env.VFCASH,
+    code: o.code, status: o.status, total: o.total, instapay: c.env.INSTAPAY, vfcash: c.env.VFCASH, instapayLink: c.env.INSTAPAY_LINK || null,
     invitations: links.map(({ occasion, groom, bride }) => ({ occasion, groom, bride })),
     // اللينكات بتتبعت للمعازيم، فبتظهر بعد الدفع بس
     links: o.status === 'paid' ? links : [],
