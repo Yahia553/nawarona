@@ -118,6 +118,12 @@
     return ['مبروك! دعوتكم على نورونا اتفعّلت.', '', ...lines, '', 'ابعتوا اللينك ده لكل المعازيم على الواتساب، وتابعوا مين جاي من لوحة المعازيم على اللينك الخاص اللي معاكم.'].join('\n');
   }
 
+  // تذكير بالدفع: للي عملوا طلب وما رفعوش صورة التحويل. اللينك بيفتح صفحة دفع للطلب ده بس
+  function remindMessage(d) {
+    const who = d.invitations.map(i => `${i.groom} و${i.bride}`).join(' · ');
+    return [`أهلًا 🤍 دعوتكم «${who}» على نورونا جاهزة ومستنية الدفع بس.`, '', `حوّلوا ${ar(d.order.total)} جنيه إنستاباي وارفعوا صورة التحويل من اللينك ده، والدعوة هتشتغل على طول ويوصلكم لينكها:`, d.order.payUrl].join('\n');
+  }
+
   function renderDetail() {
     const { order: o, invitations: invs } = S.detail;
     const active = invs.some(i => i.status === 'active');
@@ -139,6 +145,11 @@
         ${o.status === 'pending' ? '<button class="btn btn-gold" type="button" id="paid">تم الدفع</button>' : ''}
         ${o.status !== 'cancelled' ? '<button class="btn btn-danger" type="button" id="cancel">إلغاء الطلب</button>' : ''}
       </div>
+      ${o.status === 'pending' && o.payUrl ? `<div class="send"><h3>تذكير بالدفع</h3>
+        <p class="muted">لسه ما رفعوش صورة التحويل. ابعتلهم الرسالة دي، واللينك اللي فيها بيفتح صفحة الدفع على طول، وأول ما يرفعوا الصورة الدعوة بتشتغل.</p>
+        <textarea class="inp" id="rmsg" readonly>${esc(remindMessage(S.detail))}</textarea>
+        <div class="acts"><button class="btn btn-ghost sm" type="button" data-copy-el="rmsg">انسخ الرسالة</button><a class="btn btn-gold sm" target="_blank" rel="noopener" href="https://wa.me/${esc(waNumber(o.contact_phone))}?text=${encodeURIComponent(remindMessage(S.detail))}">ابعت التذكير واتساب</a></div>
+      </div>` : ''}
       ${active ? `<div class="send"><h3>ابعت اللينكات للعرسان</h3>
         <textarea class="inp" id="cmsg" readonly>${esc(coupleMessage(S.detail))}</textarea>
         <div class="acts"><button class="btn btn-ghost sm" type="button" data-copy-el="cmsg">انسخ الرسالة</button><a class="btn btn-gold sm" target="_blank" rel="noopener" href="https://wa.me/${esc(waNumber(o.contact_phone))}?text=${encodeURIComponent(coupleMessage(S.detail))}">ابعتها واتساب</a></div>

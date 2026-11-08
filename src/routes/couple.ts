@@ -160,29 +160,39 @@ coupleApi.delete('/:slug/media', async c => {
 // نفس طريقة رفع الصور: الـ body هو الملف نفسه
 const RECEIPT_MAX = 2 * MB;
 
+/** صورة التحويل للطلب ده: لو لسه pending بتتحفظ والطلب كله بيتفعّل. بيرجّع رسالة خطأ أو null.
+ * من لوحة العرسان (/api/d/:slug/receipt) ومن لينك الدفع اللي الأدمن بيبعته (/api/pay/:code/receipt) */
+export async function acceptReceipt(c: C, o: { id: string; status: string }): Promise<Response | null> {
+  if (o.status === 'cancelled') return fail('الطلب ده ملغي، كلّمونا واتساب', 403);
+  // لو اتفعّل خلاص (من دعوة تانية في نفس الطلب أو من الأدمن) مفيش صورة تانية بتتحفظ
+  if (o.status !== 'pending') return null;
+  const tooBig = () => fail('الصورة أكبر من ٢ ميجا', 413);
+  if (Number(c.req.header('content-length') || 0) > RECEIPT_MAX) return tooBig();
+  const buf = await c.req.arrayBuffer();
+  if (buf.byteLength > RECEIPT_MAX) return tooBig();
+  const t = buf.byteLength >= 64 ? sniff(new Uint8Array(buf, 0, 16)) : null;
+  if (!t) return fail('الصورة لازم تكون webp أو jpg');
+  await c.env.MEDIA.put(`${receiptPrefix(o.id)}${ulid()}.${t.ext}`, buf, { httpMetadata: { contentType: t.mime } });
+  await activateOrder(c.env.DB, o.id);
+  return null;
+}
+
+/** لينكات كل دعوات الطلب (بتتبعت للمعازيم) */
+export async function orderLinks(c: C, orderId: string) {
+  const origin = new URL(c.req.url).origin;
+  const invs = (await c.env.DB.prepare('SELECT slug, occasion, groom, bride FROM invitations WHERE order_id = ? ORDER BY created_at, slug').bind(orderId)
+    .all<{ slug: string; occasion: string; groom: string; bride: string }>()).results;
+  return invs.map(i => ({ ...i, shareUrl: `${origin}/${i.slug}` }));
+}
+
 coupleApi.post('/:slug/receipt', async c => {
   const row = await authed(c);
   if (row instanceof Response) return row;
-  const db = c.env.DB, o = await db.prepare('SELECT id, status FROM orders WHERE id = ?').bind(row.order_id).first<{ id: string; status: string }>();
-  if (!o || o.status === 'cancelled') return fail('الطلب ده ملغي، كلّمونا واتساب', 403);
-  // لو اتفعّل خلاص (من دعوة تانية في نفس الطلب أو من الأدمن) بنرجّع اللينكات من غير ما نحفظ صورة تانية
-  if (o.status === 'pending') {
-    const tooBig = () => fail('الصورة أكبر من ٢ ميجا', 413);
-    if (Number(c.req.header('content-length') || 0) > RECEIPT_MAX) return tooBig();
-    const buf = await c.req.arrayBuffer();
-    if (buf.byteLength > RECEIPT_MAX) return tooBig();
-    const t = buf.byteLength >= 64 ? sniff(new Uint8Array(buf, 0, 16)) : null;
-    if (!t) return fail('الصورة لازم تكون webp أو jpg');
-    await c.env.MEDIA.put(`${receiptPrefix(o.id)}${ulid()}.${t.ext}`, buf, { httpMetadata: { contentType: t.mime } });
-    await activateOrder(db, o.id);
-  }
-  const origin = new URL(c.req.url).origin;
-  const invs = (await db.prepare('SELECT slug, occasion, groom, bride FROM invitations WHERE order_id = ? ORDER BY created_at, slug').bind(o.id)
-    .all<{ slug: string; occasion: string; groom: string; bride: string }>()).results;
-  return c.json({
-    ...(await dashData(c, (await getInvitation(db, row.slug))!)),
-    links: invs.map(i => ({ ...i, shareUrl: `${origin}/${i.slug}` })),
-  });
+  const o = await c.env.DB.prepare('SELECT id, status FROM orders WHERE id = ?').bind(row.order_id).first<{ id: string; status: string }>();
+  if (!o) return fail('الطلب ده ملغي، كلّمونا واتساب', 403);
+  const err = await acceptReceipt(c, o);
+  if (err) return err;
+  return c.json({ ...(await dashData(c, (await getInvitation(c.env.DB, row.slug))!)), links: await orderLinks(c, o.id) });
 });
 
 // ===== CSV للإكسل =====

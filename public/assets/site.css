@@ -648,3 +648,12 @@ body.wl-on{overflow:hidden}
 @keyframes wlout{to{opacity:0;transform:translateY(-14px)}}
 @keyframes wlup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.welcome,.welcome.out,.wl-mid,.wl-end{animation:none}}
+
+/* تذكير الدفع: طلب من الجهاز ده لسه ما اتدفعش */
+.payrem{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px);opacity:0;transition:opacity .4s,transform .4s;z-index:80;width:min(440px,calc(100% - 32px));display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:16px 18px 16px 44px;border-radius:20px;background:rgba(14,32,26,.96);border:1px solid rgba(217,181,107,.4);box-shadow:0 24px 60px -20px rgba(0,0,0,.8);backdrop-filter:blur(10px);color:var(--ink)}
+.payrem.on{opacity:1;transform:translate(-50%,0)}
+.payrem strong{font-size:16px;line-height:1.5}
+.payrem span{font-size:14px;color:var(--muted)}
+.payrem .btn{margin-top:6px}
+.payrem-x{position:absolute;top:8px;left:10px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:var(--ink);font-size:18px;line-height:1;cursor:pointer}
+@media (max-width:940px){body.app .payrem{bottom:calc(92px + env(safe-area-inset-bottom,0px))}}

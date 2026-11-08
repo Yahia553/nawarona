@@ -656,6 +656,30 @@
     S.started = true; save(); goStep(S.step || 1);
   });
   if (APP && !S.started) { history.replaceState({ nw: 'welcome' }, ''); showWelcome(); }
+
+  // تذكير: عملوا طلب من الجهاز ده (آخر ٣٠ يوم) وما دفعوش لسه؟ كارت بيوديهم لصفحة الدفع في لوحتهم على طول
+  (async () => {
+    const o = loadOrders()[0], inv = o && o.invitations && o.invitations[0];
+    if (!inv || !inv.dashboardUrl || Date.now() - (o.at || 0) > 30 * 864e5) return;
+    try { if (sessionStorage.getItem('nw-payrem') === o.code) return; } catch (e) {}
+    let u; try { u = new URL(inv.dashboardUrl, location.href); } catch (e) { return; }
+    const k = u.searchParams.get('k'), slug = decodeURIComponent(u.pathname.split('/')[2] || '');
+    if (!k || !slug) return;
+    try {
+      const res = await fetch(`/api/d/${encodeURIComponent(slug)}`, { headers: { Authorization: 'Bearer ' + k } });
+      const j = res.ok ? await res.json() : null;
+      if (!j || !j.pay) return;
+      const box = document.createElement('aside');
+      box.className = 'payrem'; box.setAttribute('role', 'status');
+      box.innerHTML = `<button type="button" class="payrem-x" aria-label="اقفل">×</button>
+        <strong>دعوتكم «${esc(j.invitation.groom)} و${esc(j.invitation.bride)}» مستنية الدفع بس 🤍</strong>
+        <span>حوّلوا ${ar(j.pay.total)} ج وارفعوا صورة التحويل، والدعوة تشتغل على طول.</span>
+        <a class="btn btn-main sm" href="${esc(u.pathname + u.search)}">كمّلوا الدفع</a>`;
+      document.body.append(box);
+      requestAnimationFrame(() => box.classList.add('on'));
+      box.querySelector('.payrem-x').addEventListener('click', () => { box.remove(); try { sessionStorage.setItem('nw-payrem', o.code); } catch (e) {} });
+    } catch (e) {}
+  })();
   // «شوفوا دعوتكم بأساميكم» من الهيرو: الأسامي اتكتبت، فيبدأوا من اختيار المناسبة
   document.querySelectorAll('.quick .go, [data-start]').forEach(a => a.addEventListener('click', () => { S.started = true; save(); goStep(S.reach > 1 ? S.step : 1, { scroll: false }); }));
 

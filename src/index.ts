@@ -5,15 +5,18 @@ import { pages, notFoundPage } from './routes/pages';
 import { adminApi, adminPage } from './routes/admin';
 import { coupleApi, couplePage } from './routes/couple';
 import { mediaRoute } from './routes/media';
+import { payApi, payPage } from './routes/pay';
 import { HTML_HEADERS, notice } from './lib/html';
 
 const app = new Hono<{ Bindings: Env }>();
 
 app.route('/api/admin', adminApi);
 app.route('/api/d', coupleApi);
+app.route('/api/pay', payApi);
 app.route('/api', api);
 app.route('/admin', adminPage);
 app.route('/d', couplePage);
+app.route('/pay', payPage);
 app.route('/media', mediaRoute);
 app.route('/', pages);
 

@@ -9,6 +9,7 @@ import { DAY_MS, cairoInstant, cairoToday } from '../lib/time';
 import { normalizePhone } from '../lib/validate';
 import { HTML_HEADERS, page } from '../lib/html';
 import { activateOrder, effectiveStatus, receiptPrefix, type InvitationRow } from '../db';
+import { payUrl } from './pay';
 
 type OrderRow = {
   id: string; code: string; package: number; addon: number; total: number; status: 'pending' | 'paid' | 'cancelled';
@@ -135,7 +136,8 @@ async function orderDetail(c: { env: Env; req: { url: string } }, o: OrderRow) {
     : [];
   const receipt = (await c.env.MEDIA.list({ prefix: receiptPrefix(o.id), limit: 1 })).objects.length > 0;
   return {
-    order: { ...orderOut(o), receipt },
+    // لسه ما دفعوش: لينك الدفع اللي بيتبعت في رسالة التذكير
+    order: { ...orderOut(o), receipt, payUrl: o.status === 'pending' ? await payUrl(c.env, origin, o) : null },
     invitations: await Promise.all(invs.map(async i => {
       const s = stats.find(x => x.invitation_id === i.id);
       return {
