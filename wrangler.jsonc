@@ -34,7 +34,7 @@
     "INSTAPAY": "01014338347",
     "VFCASH": "",
     // لينك الدفع بتاعك من أبلكيشن إنستاباي (ipn.eg/…). لو موجود بيظهر زرار «ادفعوا بإنستاباي» في التذكير وصفحة الدفع
-    "INSTAPAY_LINK": "",
+    "INSTAPAY_LINK": "https://ipn.eg/S/ahmed3b3al/instapay/4YxTyj",
     "WHATSAPP": "201552621135",
     "PUBLIC_DOMAIN": "nawarona.com"
   }

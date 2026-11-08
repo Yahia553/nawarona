@@ -13,7 +13,7 @@ describe('صورة التحويل', () => {
   it('قبل الدفع اللوحة فيها المبلغ ورقم التحويل، وبعده لأ', async () => {
     const o = await createOrder();
     const before = await call(`/api/d/${o.invitations[0].slug}`, { headers: o.invitations[0].auth });
-    expect(before.json.pay).toEqual({ total: o.total, instapay: env.INSTAPAY, vfcash: env.VFCASH });
+    expect(before.json.pay).toEqual({ total: o.total, instapay: env.INSTAPAY, vfcash: env.VFCASH, instapayLink: env.INSTAPAY_LINK });
     await send(o, webp());
     expect((await call(`/api/d/${o.invitations[0].slug}`, { headers: o.invitations[0].auth })).json.pay).toBeNull();
   });
